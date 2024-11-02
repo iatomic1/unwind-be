@@ -1,52 +1,41 @@
+// @title Unwind Api
+// @version 1.0
+// @description Api for Unwind
+//
+// @contact.name Al-Ameen Adeyemi
+// @contact.url: https://github.com/adeyemialameen04
+//
+// @host localhost:8080
 package main
 
 import (
-	"fmt"
 	"log"
-	"net/http"
 	"path/filepath"
 	"runtime"
 
+	"github.com/adeyemialameen04/unwind-be/core/router"
+	"github.com/adeyemialameen04/unwind-be/core/server"
 	"github.com/adeyemialameen04/unwind-be/internal/config"
-	"github.com/adeyemialameen04/unwind-be/mock"
-	"github.com/adeyemialameen04/unwind-be/types"
-	"github.com/gin-gonic/gin"
 )
 
-// getRootDir returns the absolute path to the project root directory
-func getRootDir() string {
+// GetRootDir returns the absolute path to the project root directory
+func GetRootDir() string {
 	_, b, _, _ := runtime.Caller(0)
 	return filepath.Join(filepath.Dir(b), "../..")
 }
 
-func getBooks(c *gin.Context) {
-	c.JSON(http.StatusOK, mock.Books)
-}
-
-func createBook(c *gin.Context) {
-	var newBook types.Book
-
-	if err := c.BindJSON(&newBook); err != nil {
-		return
-	}
-
-	mock.Books = append(mock.Books, newBook)
-	c.IndentedJSON(http.StatusCreated, newBook)
-}
-
 func main() {
-	rootDir := getRootDir()
+	rootDir := GetRootDir()
 	cfg, err := config.Load(rootDir)
 	if err != nil {
 		log.Fatalf("Error loading config: %v", err)
 	}
 
-	router := gin.Default()
-	router.GET("/books", getBooks)
-	router.POST("/books", createBook)
-
-	serverAddr := fmt.Sprintf("localhost%s", cfg.HttpAddress)
-	if err := router.Run(serverAddr); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
+	srv, err := server.NewServer(cfg)
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	router.SetupRouter(srv)
+	server.RunServer(srv)
 }
