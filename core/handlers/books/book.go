@@ -1,11 +1,14 @@
 package books
 
 import (
+	"context"
 	"net/http"
 
+	"github.com/adeyemialameen04/unwind-be/internal/db/repository"
 	"github.com/adeyemialameen04/unwind-be/mock"
 	"github.com/adeyemialameen04/unwind-be/types"
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 )
 
 // GetBooks godoc
@@ -18,6 +21,20 @@ import (
 // @Router       /books [get]
 func GetBooks(c *gin.Context) {
 	c.JSON(http.StatusOK, mock.Books)
+}
+
+func GetB(ctx context.Context, conn *pgx.Conn) (error, []repository.Book) {
+	tx, _ := conn.Begin(ctx)
+	defer tx.Rollback(ctx)
+
+	repo := repository.New(tx)
+
+	books, err := repo.FindAllBooks(ctx)
+	if err != nil {
+		return err, nil
+	}
+
+	return nil, books
 }
 
 // CreateBook godoc
