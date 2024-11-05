@@ -10,10 +10,7 @@ import (
 )
 
 const findAllBooks = `-- name: FindAllBooks :many
-SELECT
-  id, title, author, plublished_date
-FROM
-  book
+SELECT id, title, author, created_at, updated_at FROM book
 `
 
 func (q *Queries) FindAllBooks(ctx context.Context) ([]Book, error) {
@@ -29,7 +26,8 @@ func (q *Queries) FindAllBooks(ctx context.Context) ([]Book, error) {
 			&i.ID,
 			&i.Title,
 			&i.Author,
-			&i.PlublishedDate,
+			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -39,4 +37,28 @@ func (q *Queries) FindAllBooks(ctx context.Context) ([]Book, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const insertBook = `-- name: InsertBook :one
+INSERT INTO book (id, title, author)
+VALUES ( uuid_generate_v4(), $1, $2 )
+RETURNING id, title, author, created_at, updated_at
+`
+
+type InsertBookParams struct {
+	Title  string `json:"title" validate:"min=10,max=255"`
+	Author string `json:"author" validate:"required"`
+}
+
+func (q *Queries) InsertBook(ctx context.Context, arg InsertBookParams) (Book, error) {
+	row := q.db.QueryRow(ctx, insertBook, arg.Title, arg.Author)
+	var i Book
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Author,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

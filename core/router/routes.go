@@ -18,7 +18,7 @@ func SetupRouter(srv *server.Server) {
 
 	specUrl := filepath.Join(projectpath.Root, "/docs/swagger.json")
 
-	router.GET("/spec-url", func(c *gin.Context) {
+	router.GET("/docs/", func(c *gin.Context) {
 		content, err := scalargo.NewV2(
 			scalargo.WithSpecURL("/docs/swagger.json"),
 			scalargo.WithMetaDataOpts(
@@ -28,7 +28,7 @@ func SetupRouter(srv *server.Server) {
 				URL:         "http://localhost:8080",
 				Description: "Default Server",
 			}),
-			scalargo.WithLayout(scalargo.LayoutClassic),
+			scalargo.WithTheme(scalargo.ThemeDeepSpace),
 		)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -45,19 +45,3 @@ func SetupRouter(srv *server.Server) {
 
 	srv.Router = router
 }
-
-// router.GET("/reference", func(c *gin.Context) {
-// 	htmlContent, err := scalar.ApiReferenceHTML(&scalar.Options{
-// 		SpecURL: apiDir,
-// 		CustomOptions: scalar.CustomOptions{
-// 			PageTitle: "Unwind Api",
-// 		},
-// 	})
-// 	if err != nil {
-// 		c.String(http.StatusInternalServerError, "Failed to generate API reference: %v", err)
-// 		return
-// 	}
-//
-// 	c.Header("Content-Type", "text/html; charset=utf-8")
-// 	c.String(http.StatusOK, htmlContent)
-// })

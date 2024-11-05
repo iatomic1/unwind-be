@@ -12,16 +12,19 @@ import (
 
 	"github.com/adeyemialameen04/unwind-be/internal/config"
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 )
 
 type Server struct {
 	Router *gin.Engine
 	Config *config.Config
+	DB     *pgx.Conn
 }
 
-func NewServer(cfg *config.Config) (*Server, error) {
+func NewServer(cfg *config.Config, db *pgx.Conn) (*Server, error) {
 	return &Server{
 		Config: cfg,
+		DB:     db,
 	}, nil
 }
 
