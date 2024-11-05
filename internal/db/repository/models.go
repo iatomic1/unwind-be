@@ -5,12 +5,15 @@
 package repository
 
 import (
-	"github.com/jackc/pgx/v5/pgtype"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 type Book struct {
-	ID             int32
-	Title          string
-	Author         pgtype.Text
-	PlublishedDate pgtype.Date
+	ID        uuid.UUID `json:"id"`
+	Title     string    `json:"title" validate:"min=10,max=255"`
+	Author    string    `json:"author" validate:"required"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }

@@ -36,14 +36,14 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/types.Book"
+                                "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Book"
                             }
                         }
                     }
                 }
             },
             "post": {
-                "description": "Create a new book with the provided data",
+                "description": "Insert a new book into the database",
                 "consumes": [
                     "application/json"
                 ],
@@ -61,15 +61,33 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/types.Book"
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.InsertBookParams"
                         }
                     }
                 ],
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "Book created successfully",
                         "schema": {
-                            "$ref": "#/definitions/types.Book"
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Book"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to start transaction or insert book",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -77,17 +95,31 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "types.Book": {
+        "github_com_adeyemialameen04_unwind-be_internal_db_repository.Book": {
             "type": "object",
             "properties": {
                 "author": {
                     "type": "string"
                 },
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
-                "quantity": {
-                    "type": "integer"
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_adeyemialameen04_unwind-be_internal_db_repository.InsertBookParams": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "type": "string"
                 },
                 "title": {
                     "type": "string"

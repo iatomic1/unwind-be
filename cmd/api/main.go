@@ -12,7 +12,6 @@ import (
 	"context"
 	"log"
 
-	"github.com/adeyemialameen04/unwind-be/core/handlers/books"
 	"github.com/adeyemialameen04/unwind-be/core/router"
 	"github.com/adeyemialameen04/unwind-be/core/server"
 	"github.com/adeyemialameen04/unwind-be/internal/config"
@@ -21,7 +20,6 @@ import (
 )
 
 func main() {
-	ctx := context.Background()
 	cfg, err := config.Load(projectpath.Root)
 	if err != nil {
 		log.Fatalf("Error loading config: %v", err)
@@ -33,12 +31,11 @@ func main() {
 	}
 	defer conn.Close(context.Background())
 
-	srv, err := server.NewServer(cfg)
+	srv, err := server.NewServer(cfg, conn)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	books.GetB(ctx, conn)
 	router.SetupRouter(srv)
 	server.RunServer(srv)
 }

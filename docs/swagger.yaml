@@ -1,12 +1,21 @@
 definitions:
-  types.Book:
+  github_com_adeyemialameen04_unwind-be_internal_db_repository.Book:
     properties:
       author:
         type: string
+      created_at:
+        type: string
       id:
         type: string
-      quantity:
-        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  github_com_adeyemialameen04_unwind-be_internal_db_repository.InsertBookParams:
+    properties:
+      author:
+        type: string
       title:
         type: string
     type: object
@@ -30,7 +39,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/types.Book'
+              $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Book'
             type: array
       summary: Get all books
       tags:
@@ -38,21 +47,33 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create a new book with the provided data
+      description: Insert a new book into the database
       parameters:
       - description: Book data
         in: body
         name: book
         required: true
         schema:
-          $ref: '#/definitions/types.Book'
+          $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.InsertBookParams'
       produces:
       - application/json
       responses:
         "201":
-          description: Created
+          description: Book created successfully
           schema:
-            $ref: '#/definitions/types.Book'
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Book'
+        "400":
+          description: Invalid request data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to start transaction or insert book
+          schema:
+            additionalProperties:
+              type: string
+            type: object
       summary: Create a new book
       tags:
       - books
