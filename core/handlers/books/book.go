@@ -24,14 +24,14 @@ func NewBookHandler(srv *server.Server) *Handler {
 // GetBooks godoc
 // @Summary      Get all books
 // @Description  Get a list of all books
-// @Tags         books
+// @Tags         Books
 // @Accept       json
 // @Produce      json
-// @Success      200  {array}   repository.Book
+// @Success      200  {object}  server.Response{data=[]repository.Book} "Books retrieved successfully"
 // @Router       /books [get]
-func (book *Handler) GetBooks(c *gin.Context) {
+func (h *Handler) GetBooks(c *gin.Context) {
 	ctx := context.Background()
-	tx, err := book.srv.DB.Begin(ctx)
+	tx, err := h.srv.DB.Begin(ctx)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to start transaction"})
 		return
@@ -52,22 +52,21 @@ func (book *Handler) GetBooks(c *gin.Context) {
 	}
 
 	if books != nil {
-		c.JSON(http.StatusOK, books)
+		server.SendSuccess(c, "Books retrieved successfully", books)
 	}
 }
 
 // CreateBook godoc
 // @Summary      Create a new book
 // @Description  Insert a new book into the database
-// @Tags         books
+// @Tags         Books
 // @Accept       json
 // @Produce      json
 // @Param        book  body      repository.InsertBookParams  true  "Book data"
-// @Success      201   {object}  repository.Book             "Book created successfully"
+// @Success      201   {object}  server.Response{data=repository.Book} "Book created successfully"
 // @Failure      400   {object}  map[string]string            "Invalid request data"
 // @Failure      500   {object}  map[string]string            "Failed to start transaction or insert book"
 // @Router       /books [post]
-
 func (h *Handler) CreateBook(c *gin.Context) {
 	g := galidator.New().CustomMessages(galidator.Messages{
 		"required": "$field is required",
@@ -81,7 +80,8 @@ func (h *Handler) CreateBook(c *gin.Context) {
 	// Bind the incoming JSON to the InsertBookParams struct
 	if err := c.ShouldBindJSON(&req); err != nil {
 		fmt.Println(err)
-		c.JSON(http.StatusNotAcceptable, gin.H{"detail": customizer.DecryptErrors(err), "err": err.Error()})
+		server.SendValidationError(c, customizer.DecryptErrors(err))
+		// c.JSON(http.StatusNotAcceptable, gin.H{"detail": customizer.DecryptErrors(err), "err": err.Error()})
 		return
 	}
 
@@ -108,5 +108,5 @@ func (h *Handler) CreateBook(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "Book created successfully", "data": book})
+	server.SendSuccess(c, "Book created successfully", book)
 }

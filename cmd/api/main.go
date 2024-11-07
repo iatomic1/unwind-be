@@ -2,8 +2,8 @@
 // @version 1.0
 // @description Api for Unwind
 //
-// @contact.name Al-Ameen Adeyemi
-// @contact.url: https://github.com/adeyemialameen04
+// @contact.name  Al-Ameen Adeyemi
+// @contact.url https://github.com/adeyemialameen04
 //
 // @host localhost:8080
 package main

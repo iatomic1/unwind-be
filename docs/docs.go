@@ -10,7 +10,8 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {
-            "name": "Al-Ameen Adeyemi"
+            "name": "Al-Ameen Adeyemi",
+            "url": "https://github.com/adeyemialameen04"
         },
         "version": "{{.Version}}"
     },
@@ -27,17 +28,29 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "books"
+                    "Books"
                 ],
                 "summary": "Get all books",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Books retrieved successfully",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Book"
-                            }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Book"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -51,7 +64,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "books"
+                    "Books"
                 ],
                 "summary": "Create a new book",
                 "parameters": [
@@ -69,7 +82,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Book created successfully",
                         "schema": {
-                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Book"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Book"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
@@ -95,6 +120,19 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "github_com_adeyemialameen04_unwind-be_core_server.Response": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "errors": {},
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_adeyemialameen04_unwind-be_internal_db_repository.Book": {
             "type": "object",
             "required": [

@@ -1,4 +1,13 @@
 definitions:
+  github_com_adeyemialameen04_unwind-be_core_server.Response:
+    properties:
+      data: {}
+      errors: {}
+      message:
+        type: string
+      status:
+        type: string
+    type: object
   github_com_adeyemialameen04_unwind-be_internal_db_repository.Book:
     properties:
       author:
@@ -29,6 +38,7 @@ host: localhost:8080
 info:
   contact:
     name: Al-Ameen Adeyemi
+    url: https://github.com/adeyemialameen04
   description: Api for Unwind
   title: Unwind Api
   version: "1.0"
@@ -42,14 +52,19 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Books retrieved successfully
           schema:
-            items:
-              $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Book'
-            type: array
+            allOf:
+            - $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Book'
+                  type: array
+              type: object
       summary: Get all books
       tags:
-      - books
+      - Books
     post:
       consumes:
       - application/json
@@ -67,7 +82,12 @@ paths:
         "201":
           description: Book created successfully
           schema:
-            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Book'
+            allOf:
+            - $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Book'
+              type: object
         "400":
           description: Invalid request data
           schema:
@@ -82,5 +102,5 @@ paths:
             type: object
       summary: Create a new book
       tags:
-      - books
+      - Books
 swagger: "2.0"
