@@ -12,8 +12,8 @@ import (
 
 type Book struct {
 	ID        uuid.UUID `json:"id"`
-	Title     string    `json:"title" validate:"min=10,max=255"`
-	Author    string    `json:"author" validate:"required"`
+	Title     string    `binding:"required" json:"title"`
+	Author    string    `binding:"required" json:"author"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

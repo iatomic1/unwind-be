@@ -97,6 +97,10 @@ const docTemplate = `{
     "definitions": {
         "github_com_adeyemialameen04_unwind-be_internal_db_repository.Book": {
             "type": "object",
+            "required": [
+                "author",
+                "title"
+            ],
             "properties": {
                 "author": {
                     "type": "string"
@@ -117,6 +121,10 @@ const docTemplate = `{
         },
         "github_com_adeyemialameen04_unwind-be_internal_db_repository.InsertBookParams": {
             "type": "object",
+            "required": [
+                "author",
+                "title"
+            ],
             "properties": {
                 "author": {
                     "type": "string"

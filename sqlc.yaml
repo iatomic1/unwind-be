@@ -21,6 +21,6 @@ sql:
           import: time
           type: Time
       - column: book.title
-        go_struct_tag: validate:"min=10,max=255"
+        go_struct_tag: binding:"required"
       - column: book.author
-        go_struct_tag: validate:"required"
+        go_struct_tag: binding:"required"

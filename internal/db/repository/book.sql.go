@@ -46,8 +46,8 @@ RETURNING id, title, author, created_at, updated_at
 `
 
 type InsertBookParams struct {
-	Title  string `json:"title" validate:"min=10,max=255"`
-	Author string `json:"author" validate:"required"`
+	Title  string `binding:"required" json:"title"`
+	Author string `binding:"required" json:"author"`
 }
 
 func (q *Queries) InsertBook(ctx context.Context, arg InsertBookParams) (Book, error) {

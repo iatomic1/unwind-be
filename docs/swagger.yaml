@@ -11,6 +11,9 @@ definitions:
         type: string
       updated_at:
         type: string
+    required:
+    - author
+    - title
     type: object
   github_com_adeyemialameen04_unwind-be_internal_db_repository.InsertBookParams:
     properties:
@@ -18,6 +21,9 @@ definitions:
         type: string
       title:
         type: string
+    required:
+    - author
+    - title
     type: object
 host: localhost:8080
 info:

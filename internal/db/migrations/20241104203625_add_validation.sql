@@ -2,8 +2,8 @@
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS book (
   id UUID PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,  -- tags:`validate:"min=10,max=255"`
-  author VARCHAR(255) NOT NULL,  -- tags:`validate:"required"`
+  title VARCHAR(255) NOT NULL,  -- tags:`binding:"required"`
+  author VARCHAR(255) NOT NULL,  -- tags:`binding:"required"`
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
