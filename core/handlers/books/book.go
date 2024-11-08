@@ -22,13 +22,15 @@ func NewBookHandler(srv *server.Server) *Handler {
 }
 
 // GetBooks godoc
-// @Summary      Get all books
-// @Description  Get a list of all books
-// @Tags         Books
-// @Accept       json
-// @Produce      json
-// @Success      200  {object}  server.Response{data=[]repository.Book} "Books retrieved successfully"
-// @Router       /books [get]
+//
+//	@Summary		Get all books
+//	@Description	Get a list of all books
+//	@Tags			Books
+//	@Accept			json
+//	@Produce		json
+//	@Success		200				{object}	server.Response{data=[]repository.Book}	"Books retrieved successfully"
+//	@Param			Authorization	header		string									true	"Bearer token"
+//	@Router			/books [get]
 func (h *Handler) GetBooks(c *gin.Context) {
 	ctx := context.Background()
 	tx, err := h.srv.DB.Begin(ctx)
@@ -52,13 +54,14 @@ func (h *Handler) GetBooks(c *gin.Context) {
 	}
 
 	if books != nil {
-		server.SendSuccess(c, "Books retrieved successfully", books)
+		server.SendSuccess(c, books, server.WithMessage("Books retrieved successfully"))
 	}
 }
 
 // CreateBook godoc
 // @Summary      Create a new book
 // @Description  Insert a new book into the database
+// @Security     AccessTokenBearer
 // @Tags         Books
 // @Accept       json
 // @Produce      json
@@ -79,7 +82,6 @@ func (h *Handler) CreateBook(c *gin.Context) {
 
 	// Bind the incoming JSON to the InsertBookParams struct
 	if err := c.ShouldBindJSON(&req); err != nil {
-		fmt.Println(err)
 		server.SendValidationError(c, customizer.DecryptErrors(err))
 		return
 	}
@@ -87,7 +89,7 @@ func (h *Handler) CreateBook(c *gin.Context) {
 	// Start a transaction
 	tx, err := h.srv.DB.Begin(ctx)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to start transaction"})
+		server.SendInternalServerError(c, err, server.WithMessage("Failed to start transaction"))
 		return
 	}
 	defer tx.Rollback(ctx)
@@ -107,5 +109,8 @@ func (h *Handler) CreateBook(c *gin.Context) {
 		return
 	}
 
-	server.SendSuccess(c, "Book created successfully", book)
+	authorization := c.GetHeader("Authorization")
+	fmt.Println(authorization)
+
+	server.SendSuccess(c, book, server.WithMessage("Book created successfully"))
 }

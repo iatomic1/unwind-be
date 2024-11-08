@@ -11,6 +11,7 @@ import (
 
 func RegisterDocsRoutes(router *gin.RouterGroup) {
 	specUrl := filepath.Join(projectpath.Root, "/docs/swagger.json")
+	// spec2Url := filepath.Join(projectpath.Root, "/oas.json")
 
 	router.GET("/reference", func(c *gin.Context) {
 		content, err := scalargo.NewV2(
@@ -24,6 +25,7 @@ func RegisterDocsRoutes(router *gin.RouterGroup) {
 			}),
 			scalargo.WithTheme(scalargo.ThemeDeepSpace),
 			scalargo.WithLayout(scalargo.LayoutClassic),
+			scalargo.WithAuthentication("authentication"),
 		)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -35,6 +37,7 @@ func RegisterDocsRoutes(router *gin.RouterGroup) {
 	})
 
 	router.GET("/swagger.json", func(c *gin.Context) {
+		// c.File(spec2Url)
 		c.File(specUrl)
 	})
 }
