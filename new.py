@@ -11,6 +11,8 @@ def parse_sql_file(sql_file):
     for line in lines:
         if 'CREATE TABLE IF NOT EXISTS' in line:
             table_name = line.split('CREATE TABLE IF NOT EXISTS')[1].strip().split()[0]
+            if table_name.startswith('"') and table_name.endswith('"'):
+                table_name = table_name[1:-1]
             continue
             
         if table_name and '-- tags:' in line:

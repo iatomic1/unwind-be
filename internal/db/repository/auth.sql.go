@@ -11,28 +11,28 @@ import (
 
 const registerUser = `-- name: RegisterUser :one
 INSERT INTO "user" (
- id, email, password_hash 
+ id, email, password 
 ) VALUES ( uuid_generate_v4(), $1, $2 )
-RETURNING id, name, username, profile_pic, created_at, updated_at, email, password_hash
+RETURNING id, name, username, email, password, profile_pic, created_at, updated_at
 `
 
 type RegisterUserParams struct {
-	Email        string `json:"email"`
-	PasswordHash string `json:"password_hash"`
+	Email    string `binding:"required,email" json:"email"`
+	Password string `binding:"required" json:"password"`
 }
 
 func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (User, error) {
-	row := q.db.QueryRow(ctx, registerUser, arg.Email, arg.PasswordHash)
+	row := q.db.QueryRow(ctx, registerUser, arg.Email, arg.Password)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
 		&i.Username,
+		&i.Email,
+		&i.Password,
 		&i.ProfilePic,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.Email,
-		&i.PasswordHash,
 	)
 	return i, err
 }

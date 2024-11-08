@@ -38,7 +38,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/core_handlers_auth.AuthRequest"
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.RegisterUserParams"
                         }
                     }
                 ],
@@ -66,7 +66,7 @@ const docTemplate = `{
         },
         "/auth/signup": {
             "post": {
-                "description": "Logs a user into his/her account",
+                "description": "Create an account on unwind",
                 "consumes": [
                     "application/json"
                 ],
@@ -76,10 +76,10 @@ const docTemplate = `{
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Login to your account",
+                "summary": "Create an account",
                 "parameters": [
                     {
-                        "description": "Login data",
+                        "description": "Signup data",
                         "name": "book",
                         "in": "body",
                         "required": true,
@@ -89,6 +89,24 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
+                    "201": {
+                        "description": "User created successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/core_handlers_auth.RegisterResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
                     "400": {
                         "description": "Invalid request data",
                         "schema": {
@@ -212,17 +230,27 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "core_handlers_auth.AuthRequest": {
+        "core_handlers_auth.RegisterResponse": {
             "type": "object",
-            "required": [
-                "email",
-                "password"
-            ],
+            "properties": {
+                "accessToken": {
+                    "type": "string"
+                },
+                "refreshToken": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/core_handlers_auth.UserDetails"
+                }
+            }
+        },
+        "core_handlers_auth.UserDetails": {
+            "type": "object",
             "properties": {
                 "email": {
                     "type": "string"
                 },
-                "password": {
+                "id": {
                     "type": "string"
                 }
             }
@@ -250,7 +278,7 @@ const docTemplate = `{
                 "author": {
                     "type": "string"
                 },
-                "created_at": {
+                "createdAt": {
                     "type": "string"
                 },
                 "id": {
@@ -259,7 +287,7 @@ const docTemplate = `{
                 "title": {
                     "type": "string"
                 },
-                "updated_at": {
+                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -281,11 +309,15 @@ const docTemplate = `{
         },
         "github_com_adeyemialameen04_unwind-be_internal_db_repository.RegisterUserParams": {
             "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
             "properties": {
                 "email": {
                     "type": "string"
                 },
-                "password_hash": {
+                "password": {
                     "type": "string"
                 }
             }
