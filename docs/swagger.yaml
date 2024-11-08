@@ -44,6 +44,13 @@ definitions:
     - author
     - title
     type: object
+  github_com_adeyemialameen04_unwind-be_internal_db_repository.RegisterUserParams:
+    properties:
+      email:
+        type: string
+      password_hash:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -53,7 +60,7 @@ info:
   title: Unwind Api
   version: "1.0"
 paths:
-  /auth:
+  /auth/login:
     post:
       consumes:
       - application/json
@@ -65,6 +72,36 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/core_handlers_auth.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Invalid request data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to start transaction or insert book
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login to your account
+      tags:
+      - Auth
+  /auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: Logs a user into his/her account
+      parameters:
+      - description: Login data
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.RegisterUserParams'
       produces:
       - application/json
       responses:
