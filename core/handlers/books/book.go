@@ -81,7 +81,6 @@ func (h *Handler) CreateBook(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		fmt.Println(err)
 		server.SendValidationError(c, customizer.DecryptErrors(err))
-		// c.JSON(http.StatusNotAcceptable, gin.H{"detail": customizer.DecryptErrors(err), "err": err.Error()})
 		return
 	}
 

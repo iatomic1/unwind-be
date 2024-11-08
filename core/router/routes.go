@@ -10,6 +10,7 @@ func SetupRouter(srv *server.Server) {
 	router.Use(gin.Logger(), gin.Recovery())
 
 	RegisterBookRoutes(srv, router.Group("/books"))
+	RegisterAuthRoutes(srv, router.Group("/auth"))
 	RegisterDocsRoutes(router.Group("/docs"))
 
 	srv.Router = router
