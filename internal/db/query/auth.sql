@@ -4,3 +4,7 @@ INSERT INTO "user" (
 ) VALUES ( uuid_generate_v4(), $1, $2 )
 RETURNING *
 ;
+
+-- name: GetUserByEmail :one
+SELECT * FROM "user"
+WHERE email = $1;

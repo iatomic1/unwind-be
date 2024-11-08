@@ -27,7 +27,7 @@ const (
 type UserDetails struct {
 	Email string `json:"email"`
 	ID    string `json:"id"`
-}
+} // @name EmailID
 
 type Handler struct {
 	srv *server.Server
@@ -38,42 +38,76 @@ func NewAuthHandler(srv *server.Server) *Handler {
 }
 
 // Login godoc
-// @Summary      Login to your account
-// @Description  Logs a user into his/her account
-// @Tags         Auth
-// @Accept       json
-// @Produce      json
-// @Param        book  body      repository.RegisterUserParams  true  "Login data"
-// @Failure      400   {object}  map[string]string            "Invalid request data"
-// @Failure      500   {object}  map[string]string            "Failed to start transaction or insert book"
-// @Router       /auth/login [post]
+//
+//	@Summary		Login to your account
+//	@Description	Logs a user into his/her account
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			book	body		repository.RegisterUserParams	true	"Login data"
+//	@Failure		400		{object}	map[string]string				"Invalid request data"
+//	@Failure		500		{object}	map[string]string				"Failed to start transaction or insert book"
+//	@Router			/auth/login [post]
 func (h *Handler) LoginUser(c *gin.Context) {
 	g := galidator.New().CustomMessages(galidator.Messages{
 		"required": "$field is required",
 	})
 	customizer := g.Validator(repository.RegisterUserParams{})
+	authorization := c.GetHeader("Authorization")
+	fmt.Println(authorization)
 
+	ctx := context.Background()
 	var req repository.RegisterUserParams
 	if err := c.ShouldBindJSON(&req); err != nil {
-		fmt.Println(err)
 		server.SendValidationError(c, customizer.DecryptErrors(err))
 		return
 	}
 
-	server.SendSuccess(c, "got it", "lol")
+	tx, err := h.srv.DB.Begin(ctx)
+	if err != nil {
+		server.SendInternalServerError(c, err)
+		return
+	}
+	defer tx.Rollback(ctx)
+
+	repo := repository.New(tx)
+	user, err := repo.GetUserByEmail(ctx, req.Email)
+	verify := utils.VerifyPassword(req.Password, user.Password)
+
+	if err != nil || !verify {
+		server.SendUnauthorized(c, nil, server.WithMessage("Invalid email or password"))
+		return
+	}
+
+	tokens, err := h.generateTokens(user.ID.String())
+	if err != nil {
+		server.SendInternalServerError(c, err)
+	}
+
+	response := RegisterResponse{
+		AccessToken:  tokens.AccessToken,
+		RefreshToken: tokens.RefreshToken,
+		User: UserDetails{
+			Email: user.Email,
+			ID:    user.ID.String(),
+		},
+	}
+
+	server.SendSuccess(c, response, server.WithMessage("Login Successful"))
 }
 
 // Signup godoc
-// @Summary      Create an account
-// @Description  Create an account on unwind
-// @Tags         Auth
-// @Accept       json
-// @Produce      json
-// @Param        book  body      repository.RegisterUserParams  true  "Signup data"
-// @Success      201   {object}  server.Response{data=RegisterResponse} "User created successfully"
-// @Failure      400   {object}  map[string]string            "Invalid request data"
-// @Failure      500   {object}  map[string]string            "Failed to start transaction or insert book"
-// @Router       /auth/signup [post]
+//
+//	@Summary		Create an account
+//	@Description	Create an account on unwind
+//	@Tags			Auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			EmailAndPassword	body		repository.RegisterUserParams			true	"Signup data"
+//	@Success		201		{object}	server.Response{data=RegisterResponse}	"User created successfully"
+//	@Failure		400		{object}	map[string]string						"Invalid request data"
+//	@Failure		500		{object}	map[string]string						"Failed to start transaction or insert book"
+//	@Router			/auth/signup [post]
 func (h *Handler) RegisterUser(c *gin.Context) {
 	g := galidator.New().CustomMessages(galidator.Messages{
 		"required": "$field is required",
@@ -108,7 +142,7 @@ func (h *Handler) RegisterUser(c *gin.Context) {
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == UniqueViolation {
-			server.SendConflict(c, err)
+			server.SendConflict(c, err, server.WithMessage("User with this email already exists"))
 			return
 		}
 
@@ -132,7 +166,7 @@ func (h *Handler) RegisterUser(c *gin.Context) {
 		},
 	}
 
-	server.SendSuccess(c, "User Created Successfully", response)
+	server.SendSuccess(c, response, server.WithMessage("User Created Successfully"))
 }
 
 type Tokens struct {

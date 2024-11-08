@@ -11,7 +11,8 @@ const docTemplate = `{
         "title": "{{.Title}}",
         "contact": {
             "name": "Al-Ameen Adeyemi",
-            "url": "https://github.com/adeyemialameen04"
+            "url": "https://github.com/adeyemialameen04",
+            "email": "adeyemialameen04@gmail.com"
         },
         "version": "{{.Version}}"
     },
@@ -80,7 +81,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "Signup data",
-                        "name": "book",
+                        "name": "EmailAndPassword",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -141,6 +142,15 @@ const docTemplate = `{
                     "Books"
                 ],
                 "summary": "Get all books",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Books retrieved successfully",
@@ -166,6 +176,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "AccessTokenBearer": []
+                    }
+                ],
                 "description": "Insert a new book into the database",
                 "consumes": [
                     "application/json"
@@ -230,6 +245,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "EmailID": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
         "core_handlers_auth.RegisterResponse": {
             "type": "object",
             "properties": {
@@ -240,18 +266,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user": {
-                    "$ref": "#/definitions/core_handlers_auth.UserDetails"
-                }
-            }
-        },
-        "core_handlers_auth.UserDetails": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "string"
+                    "$ref": "#/definitions/EmailID"
                 }
             }
         },
@@ -322,17 +337,37 @@ const docTemplate = `{
                 }
             }
         }
-    }
+    },
+    "securityDefinitions": {
+        "AccessTokenBearer": {
+            "description": "AccessTokenBearer Authentication",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        },
+        "RefreshTokenBearer": {
+            "description": "RefreshTokenBearer Authentication",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    },
+    "tags": [
+        {
+            "description": "Authentication endpoints",
+            "name": "Auth"
+        }
+    ]
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
-	BasePath:         "",
+	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "Unwind Api",
-	Description:      "Api for Unwind",
+	Title:            "Unwind API",
+	Description:      "API for Unwind",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

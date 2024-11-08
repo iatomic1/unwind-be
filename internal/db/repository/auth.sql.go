@@ -9,6 +9,27 @@ import (
 	"context"
 )
 
+const getUserByEmail = `-- name: GetUserByEmail :one
+SELECT id, name, username, email, password, profile_pic, created_at, updated_at FROM "user"
+WHERE email = $1
+`
+
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByEmail, email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Username,
+		&i.Email,
+		&i.Password,
+		&i.ProfilePic,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const registerUser = `-- name: RegisterUser :one
 INSERT INTO "user" (
  id, email, password 

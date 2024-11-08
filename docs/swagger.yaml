@@ -1,4 +1,12 @@
+basePath: /
 definitions:
+  EmailID:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+    type: object
   core_handlers_auth.RegisterResponse:
     properties:
       accessToken:
@@ -6,14 +14,7 @@ definitions:
       refreshToken:
         type: string
       user:
-        $ref: '#/definitions/core_handlers_auth.UserDetails'
-    type: object
-  core_handlers_auth.UserDetails:
-    properties:
-      email:
-        type: string
-      id:
-        type: string
+        $ref: '#/definitions/EmailID'
     type: object
   github_com_adeyemialameen04_unwind-be_core_server.Response:
     properties:
@@ -63,10 +64,11 @@ definitions:
 host: localhost:8080
 info:
   contact:
+    email: adeyemialameen04@gmail.com
     name: Al-Ameen Adeyemi
     url: https://github.com/adeyemialameen04
-  description: Api for Unwind
-  title: Unwind Api
+  description: API for Unwind
+  title: Unwind API
   version: "1.0"
 paths:
   /auth/login:
@@ -107,7 +109,7 @@ paths:
       parameters:
       - description: Signup data
         in: body
-        name: book
+        name: EmailAndPassword
         required: true
         schema:
           $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.RegisterUserParams'
@@ -143,6 +145,12 @@ paths:
       consumes:
       - application/json
       description: Get a list of all books
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -195,7 +203,23 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - AccessTokenBearer: []
       summary: Create a new book
       tags:
       - Books
+securityDefinitions:
+  AccessTokenBearer:
+    description: AccessTokenBearer Authentication
+    in: header
+    name: Authorization
+    type: apiKey
+  RefreshTokenBearer:
+    description: RefreshTokenBearer Authentication
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
+tags:
+- description: Authentication endpoints
+  name: Auth

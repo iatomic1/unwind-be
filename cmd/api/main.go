@@ -1,11 +1,24 @@
-// @title Unwind Api
-// @version 1.0
-// @description Api for Unwind
-//
-// @contact.name  Al-Ameen Adeyemi
-// @contact.url https://github.com/adeyemialameen04
-//
-// @host localhost:8080
+// @title           Unwind API
+// @version         1.0
+// @description     API for Unwind
+// @contact.name    Al-Ameen Adeyemi
+// @contact.email   adeyemialameen04@gmail.com
+// @contact.url     https://github.com/adeyemialameen04
+// @host            localhost:8080
+// @BasePath        /
+
+// @securityDefinitions.apikey AccessTokenBearer
+// @in                           header
+// @name                         Authorization
+// @description                  AccessTokenBearer Authentication
+
+// @securityDefinitions.apikey RefreshTokenBearer
+// @in                           header
+// @name                         Authorization
+// @description                  RefreshTokenBearer Authentication
+
+// @tag.name       Auth
+// @tag.description Authentication endpoints
 package main
 
 import (
