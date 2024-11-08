@@ -1,4 +1,14 @@
 definitions:
+  core_handlers_auth.AuthRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
   github_com_adeyemialameen04_unwind-be_core_server.Response:
     properties:
       data: {}
@@ -43,6 +53,36 @@ info:
   title: Unwind Api
   version: "1.0"
 paths:
+  /auth:
+    post:
+      consumes:
+      - application/json
+      description: Logs a user into his/her account
+      parameters:
+      - description: Login data
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/core_handlers_auth.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Invalid request data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to start transaction or insert book
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login to your account
+      tags:
+      - Auth
   /books:
     get:
       consumes:

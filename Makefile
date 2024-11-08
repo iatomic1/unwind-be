@@ -19,6 +19,9 @@ docs:
 	rm -rf ./docs/
 	swag init -g $(SWAGGER_ENTRY) $(SWAGGER_FLAGS)
 
+create:
+	@goose create $(n) sql -dir $(MIGRATION_DIR)
+
 restart-db:
 	@echo "Stopping existing container..."
 	docker stop $(DB_CONTAINER) || true
@@ -33,6 +36,10 @@ restart-db:
 	@sleep 3
 	@echo "Enabling UUID extension..."
 	@docker exec -i $(DB_CONTAINER) psql -U postgres -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";'
+
+gen:
+	python3 new.py
+	sqlc generate
 
 dev:
 	docker start $(DB_CONTAINER)

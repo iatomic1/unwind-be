@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Book struct {
@@ -16,4 +17,15 @@ type Book struct {
 	Author    string    `binding:"required" json:"author"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type User struct {
+	ID           uuid.UUID   `json:"id"`
+	Name         pgtype.Text `json:"name"`
+	Username     string      `json:"username"`
+	ProfilePic   pgtype.Text `json:"profile_pic"`
+	CreatedAt    time.Time   `json:"created_at"`
+	UpdatedAt    time.Time   `json:"updated_at"`
+	Email        string      `json:"email"`
+	PasswordHash string      `json:"password_hash"`
 }

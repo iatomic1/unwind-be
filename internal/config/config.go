@@ -3,17 +3,19 @@ package config
 import "github.com/spf13/viper"
 
 type Config struct {
-	HttpAddress string `mapstructure:"HTTP_SERVER_ADDRESS"`
-	DbUrl       string `mapstructure:"DB_URL"`
-	DbType      string `mapstructure:"DB_TYPE"`
-	JwtKey      string `mapstructure:"JWT_KEY"`
-	Environment string `mapstructure:"ENVIROMENT"`
-	Host        string `mapstructure:"HOST"`
-	// REDIS                  string `mapstructure:"REDIS"`
-	RedisAddress  string `mapstructure:"REDIS_ADDRESS"`
-	RedisPassword string `mapstructure:"REDIS_PASSWORD"`
-	RedisUsername string `mapstructure:"REDIS_USERNAME"`
-	RedisDB       int    `mapstructure:"REDIS_DB"`
+	RedisAddress          string `mapstructure:"REDIS_ADDRESS"`
+	DbUrl                 string `mapstructure:"DB_URL"`
+	DbType                string `mapstructure:"DB_TYPE"`
+	AccessJwtKey          string `mapstructure:"ACCESS_JWT_KEY"`
+	RefreshJwtKey         string `mapstructure:"REFRESH_JWT_KEY"`
+	Environment           string `mapstructure:"ENVIROMENT"`
+	Host                  string `mapstructure:"HOST"`
+	HttpAddress           string `mapstructure:"HTTP_SERVER_ADDRESS"`
+	RedisPassword         string `mapstructure:"REDIS_PASSWORD"`
+	RedisUsername         string `mapstructure:"REDIS_USERNAME"`
+	AccessExpirationHour  int64  `mapstructure:"ACCESS_EXPIRATION_HOUR"`
+	RefreshExpirationHour int64  `mapstructure:"REFRESH_EXPIRATION_HOUR"`
+	RedisDB               int    `mapstructure:"REDIS_DB"`
 }
 
 func Load(path string) (*Config, error) {

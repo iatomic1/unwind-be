@@ -24,3 +24,5 @@ sql:
         go_struct_tag: binding:"required"
       - column: book.author
         go_struct_tag: binding:"required"
+      - column: '"user".username'
+        go_struct_tag: binding:"required"
