@@ -9,10 +9,11 @@ import (
 	"context"
 )
 
-const registerUser = `-- name: RegisterUser :exec
+const registerUser = `-- name: RegisterUser :one
 INSERT INTO "user" (
  id, email, password_hash 
 ) VALUES ( uuid_generate_v4(), $1, $2 )
+RETURNING id, name, username, profile_pic, created_at, updated_at, email, password_hash
 `
 
 type RegisterUserParams struct {
@@ -20,7 +21,18 @@ type RegisterUserParams struct {
 	PasswordHash string `json:"password_hash"`
 }
 
-func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) error {
-	_, err := q.db.Exec(ctx, registerUser, arg.Email, arg.PasswordHash)
-	return err
+func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, registerUser, arg.Email, arg.PasswordHash)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Username,
+		&i.ProfilePic,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Email,
+		&i.PasswordHash,
+	)
+	return i, err
 }

@@ -9,6 +9,7 @@ import (
 func RegisterAuthRoutes(srv *server.Server, router *gin.RouterGroup) {
 	authHandler := auth.NewAuthHandler(srv)
 	bookGroup := router
-	bookGroup.POST("", authHandler.LoginUser)
+	bookGroup.POST("/login", authHandler.LoginUser)
+	bookGroup.POST("/signup", authHandler.RegisterUser)
 	// router.POST("", handlers.CreateBook(context.Background(), srv.DB))
 }

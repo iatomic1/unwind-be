@@ -22,7 +22,7 @@ type Book struct {
 type User struct {
 	ID           uuid.UUID   `json:"id"`
 	Name         pgtype.Text `json:"name"`
-	Username     string      `json:"username"`
+	Username     pgtype.Text `json:"username"`
 	ProfilePic   pgtype.Text `json:"profile_pic"`
 	CreatedAt    time.Time   `json:"created_at"`
 	UpdatedAt    time.Time   `json:"updated_at"`
