@@ -15,17 +15,17 @@ type Book struct {
 	ID        uuid.UUID `json:"id"`
 	Title     string    `binding:"required" json:"title"`
 	Author    string    `binding:"required" json:"author"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 type User struct {
-	ID           uuid.UUID   `json:"id"`
-	Name         pgtype.Text `json:"name"`
-	Username     pgtype.Text `json:"username"`
-	ProfilePic   pgtype.Text `json:"profile_pic"`
-	CreatedAt    time.Time   `json:"created_at"`
-	UpdatedAt    time.Time   `json:"updated_at"`
-	Email        string      `json:"email"`
-	PasswordHash string      `json:"password_hash"`
+	ID         uuid.UUID   `json:"id"`
+	Name       pgtype.Text `json:"name"`
+	Username   pgtype.Text `json:"username"`
+	Email      string      `binding:"required,email" json:"email"`
+	Password   string      `binding:"required" json:"password"`
+	ProfilePic pgtype.Text `json:"profilePic"`
+	CreatedAt  time.Time   `json:"createdAt"`
+	UpdatedAt  time.Time   `json:"updatedAt"`
 }

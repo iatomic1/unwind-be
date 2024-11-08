@@ -1,13 +1,19 @@
 definitions:
-  core_handlers_auth.AuthRequest:
+  core_handlers_auth.RegisterResponse:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+      user:
+        $ref: '#/definitions/core_handlers_auth.UserDetails'
+    type: object
+  core_handlers_auth.UserDetails:
     properties:
       email:
         type: string
-      password:
+      id:
         type: string
-    required:
-    - email
-    - password
     type: object
   github_com_adeyemialameen04_unwind-be_core_server.Response:
     properties:
@@ -22,13 +28,13 @@ definitions:
     properties:
       author:
         type: string
-      created_at:
+      createdAt:
         type: string
       id:
         type: string
       title:
         type: string
-      updated_at:
+      updatedAt:
         type: string
     required:
     - author
@@ -48,8 +54,11 @@ definitions:
     properties:
       email:
         type: string
-      password_hash:
+      password:
         type: string
+    required:
+    - email
+    - password
     type: object
 host: localhost:8080
 info:
@@ -61,36 +70,6 @@ info:
   version: "1.0"
 paths:
   /auth/login:
-    post:
-      consumes:
-      - application/json
-      description: Logs a user into his/her account
-      parameters:
-      - description: Login data
-        in: body
-        name: book
-        required: true
-        schema:
-          $ref: '#/definitions/core_handlers_auth.AuthRequest'
-      produces:
-      - application/json
-      responses:
-        "400":
-          description: Invalid request data
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Failed to start transaction or insert book
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Login to your account
-      tags:
-      - Auth
-  /auth/signup:
     post:
       consumes:
       - application/json
@@ -118,6 +97,45 @@ paths:
               type: string
             type: object
       summary: Login to your account
+      tags:
+      - Auth
+  /auth/signup:
+    post:
+      consumes:
+      - application/json
+      description: Create an account on unwind
+      parameters:
+      - description: Signup data
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.RegisterUserParams'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/core_handlers_auth.RegisterResponse'
+              type: object
+        "400":
+          description: Invalid request data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Failed to start transaction or insert book
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create an account
       tags:
       - Auth
   /books:
