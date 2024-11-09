@@ -5,7 +5,7 @@ DB_PORT = 5431
 DB_URL = postgres://postgres:$(DB_PASSWORD)@localhost:$(DB_PORT)/postgres?sslmode=disable
 MIGRATION_DIR = internal/db/migrations
 SWAGGER_ENTRY = cmd/api/main.go
-SWAGGER_FLAGS = --parseDepth 1 --parseDependency --parseInternal
+SWAGGER_FLAGS = --parseDepth 1 --parseDependency --parseInternal --o internal/docs
 
 .PHONY: restart clean migrate docs dev
 
@@ -38,15 +38,14 @@ restart-db:
 	@docker exec -i $(DB_CONTAINER) psql -U postgres -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";'
 
 gen:
-	python3 new.py
+	python3 ./scripts/add_tags.py
 	sqlc generate
 
 dev:
 	docker start $(DB_CONTAINER)
-	rm -rf ./tmp ./docs/
+	@rm -rf ./tmp ./internal/docs/
 	goose -dir $(MIGRATION_DIR) postgres "$(DB_URL)" up
-	sleep 1
-	python3 new.py
+	python3 ./scripts/add_tags.py
 	sqlc generate
 	sleep 1
 	swag init -g $(SWAGGER_ENTRY) $(SWAGGER_FLAGS)

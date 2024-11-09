@@ -13,13 +13,13 @@ const findAllBooks = `-- name: FindAllBooks :many
 SELECT id, title, author, created_at, updated_at FROM book
 `
 
-func (q *Queries) FindAllBooks(ctx context.Context) ([]Book, error) {
+func (q *Queries) FindAllBooks(ctx context.Context) ([]*Book, error) {
 	rows, err := q.db.Query(ctx, findAllBooks)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Book
+	var items []*Book
 	for rows.Next() {
 		var i Book
 		if err := rows.Scan(
@@ -31,7 +31,7 @@ func (q *Queries) FindAllBooks(ctx context.Context) ([]Book, error) {
 		); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, &i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ type InsertBookParams struct {
 	Author string `binding:"required" json:"author"`
 }
 
-func (q *Queries) InsertBook(ctx context.Context, arg InsertBookParams) (Book, error) {
+func (q *Queries) InsertBook(ctx context.Context, arg InsertBookParams) (*Book, error) {
 	row := q.db.QueryRow(ctx, insertBook, arg.Title, arg.Author)
 	var i Book
 	err := row.Scan(
@@ -60,5 +60,5 @@ func (q *Queries) InsertBook(ctx context.Context, arg InsertBookParams) (Book, e
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
-	return i, err
+	return &i, err
 }
