@@ -8,3 +8,8 @@ RETURNING *
 -- name: GetUserByEmail :one
 SELECT * FROM "user"
 WHERE email = $1;
+
+-- name: GetUserById :one
+SELECT * FROM "user"
+WHERE id = $1;
+

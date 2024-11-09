@@ -3,7 +3,6 @@ package books
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -108,9 +107,6 @@ func (h *Handler) CreateBook(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to commit transaction"})
 		return
 	}
-
-	authorization := c.GetHeader("Authorization")
-	fmt.Println(authorization)
 
 	server.SendSuccess(c, book, server.WithMessage("Book created successfully"))
 }
