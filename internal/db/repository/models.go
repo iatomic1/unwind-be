@@ -19,13 +19,22 @@ type Book struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-type User struct {
+type Profile struct {
 	ID         uuid.UUID   `json:"id"`
-	Name       pgtype.Text `json:"name"`
-	Username   pgtype.Text `json:"username"`
-	Email      string      `binding:"required,email" json:"email"`
-	Password   string      `binding:"required" json:"password"`
-	ProfilePic pgtype.Text `json:"profilePic"`
+	UserID     pgtype.UUID `binding:"required,uuid" json:"userId"`
+	ProfilePic *string     `json:"profilePic"`
+	Name       *string     `json:"name"`
+	CoverPic   *string     `json:"coverPic"`
 	CreatedAt  time.Time   `json:"createdAt"`
 	UpdatedAt  time.Time   `json:"updatedAt"`
+}
+
+type User struct {
+	ID        uuid.UUID `json:"id"`
+	Name      *string   `json:"name"`
+	Username  *string   `json:"username"`
+	Email     string    `binding:"required,email" json:"email"`
+	Password  string    `binding:"required" json:"password"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }

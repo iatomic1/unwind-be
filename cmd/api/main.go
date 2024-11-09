@@ -5,7 +5,7 @@
 // @contact.email   adeyemialameen04@gmail.com
 // @contact.url     https://github.com/adeyemialameen04
 // @host            localhost:8080
-// @BasePath        /
+// @BasePath  /api/v1
 
 // @securityDefinitions.apikey AccessTokenBearer
 // @in                           header

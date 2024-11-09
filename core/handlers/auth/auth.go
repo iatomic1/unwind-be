@@ -179,7 +179,7 @@ func (h *Handler) RegisterUser(c *gin.Context) {
 		},
 	}
 
-	server.SendSuccess(c, response, server.WithMessage(UserCreated))
+	server.SendCreated(c, response, server.WithMessage(UserCreated))
 }
 
 // @Summary Refreh Token

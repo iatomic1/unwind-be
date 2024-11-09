@@ -64,6 +64,21 @@ func SendSuccess(c *gin.Context, data interface{}, opts ...ResponseOption) {
 	c.JSON(http.StatusOK, resp)
 }
 
+func SendCreated(c *gin.Context, data interface{}, opts ...ResponseOption) {
+	resp := Response{
+		Status:  http.StatusText(http.StatusCreated),
+		Message: getDefaultMessage(http.StatusCreated),
+		Data:    data,
+	}
+
+	// Apply any provided options
+	for _, opt := range opts {
+		opt(&resp)
+	}
+
+	c.JSON(http.StatusCreated, resp)
+}
+
 func SendValidationError(c *gin.Context, errors interface{}, opts ...ResponseOption) {
 	resp := Response{
 		Status:  http.StatusText(http.StatusUnprocessableEntity),

@@ -12,11 +12,11 @@ import (
 )
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, name, username, email, password, profile_pic, created_at, updated_at FROM "user"
+SELECT id, name, username, email, password, created_at, updated_at FROM "user"
 WHERE email = $1
 `
 
-func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (*User, error) {
 	row := q.db.QueryRow(ctx, getUserByEmail, email)
 	var i User
 	err := row.Scan(
@@ -25,19 +25,18 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.Username,
 		&i.Email,
 		&i.Password,
-		&i.ProfilePic,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
-	return i, err
+	return &i, err
 }
 
 const getUserById = `-- name: GetUserById :one
-SELECT id, name, username, email, password, profile_pic, created_at, updated_at FROM "user"
+SELECT id, name, username, email, password, created_at, updated_at FROM "user"
 WHERE id = $1
 `
 
-func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
+func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (*User, error) {
 	row := q.db.QueryRow(ctx, getUserById, id)
 	var i User
 	err := row.Scan(
@@ -46,18 +45,17 @@ func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.Username,
 		&i.Email,
 		&i.Password,
-		&i.ProfilePic,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
-	return i, err
+	return &i, err
 }
 
 const registerUser = `-- name: RegisterUser :one
 INSERT INTO "user" (
  id, email, password 
 ) VALUES ( uuid_generate_v4(), $1, $2 )
-RETURNING id, name, username, email, password, profile_pic, created_at, updated_at
+RETURNING id, name, username, email, password, created_at, updated_at
 `
 
 type RegisterUserParams struct {
@@ -65,7 +63,7 @@ type RegisterUserParams struct {
 	Password string `binding:"required" json:"password"`
 }
 
-func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (User, error) {
+func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (*User, error) {
 	row := q.db.QueryRow(ctx, registerUser, arg.Email, arg.Password)
 	var i User
 	err := row.Scan(
@@ -74,9 +72,8 @@ func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (Use
 		&i.Username,
 		&i.Email,
 		&i.Password,
-		&i.ProfilePic,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
-	return i, err
+	return &i, err
 }
