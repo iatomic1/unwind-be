@@ -4,25 +4,34 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/http"
 
 	"github.com/adeyemialameen04/unwind-be/core/server"
 	"github.com/adeyemialameen04/unwind-be/internal/db/repository"
-	"github.com/adeyemialameen04/unwind-be/internal/utils"
+	utils "github.com/adeyemialameen04/unwind-be/internal/utils/auth"
 	"github.com/gin-gonic/gin"
 	"github.com/golodash/galidator"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
+const (
+	UniqueViolation           = "23505"
+	UserCreated               = "User Created Successfully"
+	ErrEmailAlreadyExist      = "User with this email already exists"
+	ErrInvalidEmailOrPassword = "Invalid email or password"
+	LoginSuccessful           = "Login Successful"
+	ErrGeneratingTokens       = "Error generating token pair"
+	TokensRefreshed           = "Tokens Refreshed successfully"
+)
+
 type RegisterResponse struct {
-	AccessToken  string      `json:"accessToken"`
-	RefreshToken string      `json:"refreshToken"`
-	User         UserDetails `json:"user"`
+	utils.TokenPair
+	User UserDetails `json:"user"`
 }
 
-const (
-	UniqueViolation = "23505"
-)
+type RefreshTokenResponse struct {
+	utils.TokenPair
+}
 
 type UserDetails struct {
 	Email string `json:"email"`
@@ -45,16 +54,16 @@ func NewAuthHandler(srv *server.Server) *Handler {
 //	@Accept			json
 //	@Produce		json
 //	@Param			book	body		repository.RegisterUserParams	true	"Login data"
+//	@Success		201		{object}	server.Response{data=RegisterResponse}	"Login success"
 //	@Failure		400		{object}	map[string]string				"Invalid request data"
 //	@Failure		500		{object}	map[string]string				"Failed to start transaction or insert book"
 //	@Router			/auth/login [post]
 func (h *Handler) LoginUser(c *gin.Context) {
 	g := galidator.New().CustomMessages(galidator.Messages{
 		"required": "$field is required",
+		"min":      `$field can't be less than {min}`,
 	})
 	customizer := g.Validator(repository.RegisterUserParams{})
-	authorization := c.GetHeader("Authorization")
-	fmt.Println(authorization)
 
 	ctx := context.Background()
 	var req repository.RegisterUserParams
@@ -75,25 +84,27 @@ func (h *Handler) LoginUser(c *gin.Context) {
 	verify := utils.VerifyPassword(req.Password, user.Password)
 
 	if err != nil || !verify {
-		server.SendUnauthorized(c, nil, server.WithMessage("Invalid email or password"))
+		server.SendUnauthorized(c, nil, server.WithMessage(ErrInvalidEmailOrPassword))
 		return
 	}
 
-	tokens, err := h.generateTokens(user.ID.String())
+	tokens, err := utils.GenerateTokenPair(user.ID.String(), h.srv.Config)
 	if err != nil {
 		server.SendInternalServerError(c, err)
 	}
 
 	response := RegisterResponse{
-		AccessToken:  tokens.AccessToken,
-		RefreshToken: tokens.RefreshToken,
+		TokenPair: utils.TokenPair{
+			AccessToken:  tokens.AccessToken,
+			RefreshToken: tokens.RefreshToken,
+		},
 		User: UserDetails{
 			Email: user.Email,
 			ID:    user.ID.String(),
 		},
 	}
 
-	server.SendSuccess(c, response, server.WithMessage("Login Successful"))
+	server.SendSuccess(c, response, server.WithMessage(LoginSuccessful))
 }
 
 // Signup godoc
@@ -142,7 +153,7 @@ func (h *Handler) RegisterUser(c *gin.Context) {
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == UniqueViolation {
-			server.SendConflict(c, err, server.WithMessage("User with this email already exists"))
+			server.SendConflict(c, err, server.WithMessage(ErrEmailAlreadyExist))
 			return
 		}
 
@@ -152,41 +163,70 @@ func (h *Handler) RegisterUser(c *gin.Context) {
 
 	// Commit the transaction
 	if err := tx.Commit(ctx); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to commit transaction"})
+		server.SendInternalServerError(c, err, server.WithMessage("Failed to commit transaction"))
 		return
 	}
 
-	tokens, err := h.generateTokens(user.ID.String())
+	tokens, err := utils.GenerateTokenPair(user.ID.String(), h.srv.Config)
 	response := RegisterResponse{
-		AccessToken:  tokens.AccessToken,
-		RefreshToken: tokens.RefreshToken,
+		TokenPair: utils.TokenPair{
+			AccessToken:  tokens.AccessToken,
+			RefreshToken: tokens.RefreshToken,
+		},
 		User: UserDetails{
 			Email: user.Email,
 			ID:    user.ID.String(),
 		},
 	}
 
-	server.SendSuccess(c, response, server.WithMessage("User Created Successfully"))
+	server.SendSuccess(c, response, server.WithMessage(UserCreated))
 }
 
-type Tokens struct {
-	AccessToken  string
-	RefreshToken string
-}
+// @Summary Refreh Token
+// @Description Refreshes token to get new token pair
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Router /auth/refresh [get]
+func (h *Handler) RefreshToken(c *gin.Context) {
+	ctx := context.Background()
 
-func (h *Handler) generateTokens(userID string) (Tokens, error) {
-	accessToken, err := utils.CreateJWT(userID, false, h.srv.Config)
+	tx, err := h.srv.DB.Begin(ctx)
 	if err != nil {
-		return Tokens{}, err
+		server.SendInternalServerError(c, err)
+		return
+	}
+	defer tx.Rollback(ctx)
+
+	userId, ok := c.Get("userId")
+	if !ok {
+		server.SendUnauthorized(c, nil, server.WithMessage("UserId not found for some reason"))
+		return
 	}
 
-	refreshToken, err := utils.CreateJWT(userID, true, h.srv.Config)
+	parsedUUID, err := uuid.Parse(userId.(string))
 	if err != nil {
-		return Tokens{}, err
+		server.SendInternalServerError(c, err, server.WithMessage("Error parsing uuid"))
+		return
 	}
 
-	return Tokens{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-	}, nil
+	repo := repository.New(tx)
+	user, err := repo.GetUserById(ctx, parsedUUID)
+	fmt.Println(user)
+	if err != nil {
+		server.SendInternalServerError(c, err)
+		return
+	}
+
+	tokens, err := utils.GenerateTokenPair(userId.(string), h.srv.Config)
+	if err != nil {
+		server.SendInternalServerError(c, err, server.WithMessage(ErrGeneratingTokens))
+		return
+	}
+
+	response := utils.TokenPair{
+		AccessToken:  tokens.AccessToken,
+		RefreshToken: tokens.RefreshToken,
+	}
+	server.SendSuccess(c, response, server.WithMessage(TokensRefreshed))
 }
