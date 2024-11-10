@@ -43,14 +43,15 @@ func AccessTokenMiddleware(cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
-		userId, profileId, err := utils.ExtractID(claims)
+		data, err := utils.ExtractDataFromToken(claims)
 		if err != nil {
 			server.SendUnauthorized(c, err)
 			c.Abort()
 			return
 		}
-		c.Set("userId", userId)
-		c.Set("profileId", profileId)
+		c.Set("userId", data.ID)
+		c.Set("profileId", data.ProfileId)
+		c.Set("email", data.Email)
 	}
 }
 
@@ -84,13 +85,14 @@ func RefreshToenMiddleware(cfg *config.Config) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		userId, profileId, err := utils.ExtractID(claims)
+		data, err := utils.ExtractDataFromToken(claims)
 		if err != nil {
 			server.SendUnauthorized(c, err)
 			c.Abort()
 			return
 		}
-		c.Set("userId", userId)
-		c.Set("profileId", profileId)
+		c.Set("userId", data.ID)
+		c.Set("profileId", data.ProfileId)
+		c.Set("email", data.Email)
 	}
 }

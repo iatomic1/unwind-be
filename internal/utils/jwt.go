@@ -132,22 +132,31 @@ func ValidateRefreshToken(tokenStr string, cfg *config.Config) (jwt.MapClaims, e
 	return claims, nil
 }
 
-func ExtractID(claims jwt.MapClaims) (string, string, error) {
+func ExtractDataFromToken(claims jwt.MapClaims) (EmailID, error) {
 	data, ok := claims["data"].(map[string]interface{})
 	if !ok {
-		return "", "", ErrInvalidToken
+		return EmailID{}, ErrInvalidToken
 	}
 
 	userId, ok := data["id"].(string)
 	if !ok {
-		return "", "", ErrInvalidToken
+		return EmailID{}, ErrInvalidToken
 	}
 	profileId, ok := data["profileId"].(string)
 	if !ok {
-		return "", "", ErrInvalidToken
+		return EmailID{}, ErrInvalidToken
 	}
 
-	return userId, profileId, nil
+	email, ok := data["email"].(string)
+	if !ok {
+		return EmailID{}, ErrInvalidToken
+	}
+
+	return EmailID{
+		ID:        userId,
+		ProfileId: profileId,
+		Email:     email,
+	}, nil
 }
 
 type TokenPair struct {
