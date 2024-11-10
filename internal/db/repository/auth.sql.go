@@ -12,7 +12,7 @@ import (
 )
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, name, username, email, password, created_at, updated_at FROM "user"
+SELECT id, email, password, created_at, updated_at FROM "user"
 WHERE email = $1
 `
 
@@ -21,8 +21,6 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (*User, erro
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
-		&i.Username,
 		&i.Email,
 		&i.Password,
 		&i.CreatedAt,
@@ -32,7 +30,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (*User, erro
 }
 
 const getUserById = `-- name: GetUserById :one
-SELECT id, name, username, email, password, created_at, updated_at FROM "user"
+SELECT id, email, password, created_at, updated_at FROM "user"
 WHERE id = $1
 `
 
@@ -41,8 +39,6 @@ func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (*User, error) 
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
-		&i.Username,
 		&i.Email,
 		&i.Password,
 		&i.CreatedAt,
@@ -55,7 +51,7 @@ const registerUser = `-- name: RegisterUser :one
 INSERT INTO "user" (
  id, email, password 
 ) VALUES ( uuid_generate_v4(), $1, $2 )
-RETURNING id, name, username, email, password, created_at, updated_at
+RETURNING id, email, password, created_at, updated_at
 `
 
 type RegisterUserParams struct {
@@ -68,8 +64,6 @@ func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (*Us
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Name,
-		&i.Username,
 		&i.Email,
 		&i.Password,
 		&i.CreatedAt,

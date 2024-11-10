@@ -7,7 +7,7 @@ import (
 
 	"github.com/adeyemialameen04/unwind-be/core/server"
 	"github.com/adeyemialameen04/unwind-be/internal/config"
-	utils "github.com/adeyemialameen04/unwind-be/internal/utils/auth"
+	"github.com/adeyemialameen04/unwind-be/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -43,13 +43,14 @@ func AccessTokenMiddleware(cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 
-		userId, err := utils.ExtractUserID(claims)
+		userId, profileId, err := utils.ExtractID(claims)
 		if err != nil {
 			server.SendUnauthorized(c, err)
 			c.Abort()
 			return
 		}
 		c.Set("userId", userId)
+		c.Set("profileId", profileId)
 	}
 }
 
@@ -83,12 +84,13 @@ func RefreshToenMiddleware(cfg *config.Config) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		userId, err := utils.ExtractUserID(claims)
+		userId, profileId, err := utils.ExtractID(claims)
 		if err != nil {
 			server.SendUnauthorized(c, err)
 			c.Abort()
 			return
 		}
 		c.Set("userId", userId)
+		c.Set("profileId", profileId)
 	}
 }

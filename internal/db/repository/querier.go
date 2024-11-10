@@ -11,11 +11,12 @@ import (
 )
 
 type Querier interface {
-	FindAllBooks(ctx context.Context) ([]*Book, error)
+	GetProfileByUserId(ctx context.Context, userID uuid.UUID) (*Profile, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserById(ctx context.Context, id uuid.UUID) (*User, error)
-	InsertBook(ctx context.Context, arg InsertBookParams) (*Book, error)
+	InsertProfile(ctx context.Context, arg InsertProfileParams) (*Profile, error)
 	RegisterUser(ctx context.Context, arg RegisterUserParams) (*User, error)
+	UpdateProfile(ctx context.Context, arg UpdateProfileParams) (*Profile, error)
 }
 
 var _ Querier = (*Queries)(nil)
