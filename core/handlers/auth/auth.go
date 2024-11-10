@@ -226,6 +226,12 @@ func (h *Handler) RefreshToken(c *gin.Context) {
 		return
 	}
 
+	email, ok := c.Get("email")
+	if !ok {
+		server.SendUnauthorized(c, nil, server.WithMessage("profileId not found for some reason"))
+		return
+	}
+
 	parsedUserId, parsedProfileId, err := domain.ParseIDs(userId.(string), profileId.(string))
 	if err != nil {
 		server.SendInternalServerError(c, err, server.WithMessage("Error parsing uuid"))
@@ -242,7 +248,7 @@ func (h *Handler) RefreshToken(c *gin.Context) {
 
 	tokens, err := utils.GenerateTokenPair(utils.EmailID{
 		ID:        parsedUserId.String(),
-		Email:     "mosh",
+		Email:     email.(string),
 		ProfileId: parsedProfileId.String(),
 	}, h.srv.Config)
 	if err != nil {
