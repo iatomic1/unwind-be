@@ -74,7 +74,7 @@ func (h *Handler) LoginUser(c *gin.Context) {
 	tokens, err := utils.GenerateTokenPair(utils.EmailID{
 		Email:     user.Email,
 		ID:        user.ID.String(),
-		ProfileId: user.ID.String(),
+		ProfileId: profile.ID.String(),
 	}, h.srv.Config)
 	if err != nil {
 		server.SendInternalServerError(c, err)

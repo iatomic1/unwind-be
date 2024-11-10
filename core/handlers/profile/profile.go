@@ -2,11 +2,13 @@ package profile
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/adeyemialameen04/unwind-be/core/server"
 	"github.com/adeyemialameen04/unwind-be/internal/db/repository"
 	"github.com/gin-gonic/gin"
 	"github.com/golodash/galidator"
+	"github.com/google/uuid"
 )
 
 type Handler struct {
@@ -48,10 +50,27 @@ func (h *Handler) UpdateUserProfile(c *gin.Context) {
 		return
 	}
 	defer tx.Rollback(ctx)
+
+	profileId, ok := c.Get("profileId")
+	if !ok {
+		server.SendUnauthorized(c, nil, server.WithMessage("profileId not found for some reason"))
+		return
+	}
+	parsedProfileId, err := uuid.Parse(profileId.(string))
+	if err != nil {
+	}
+	fmt.Println(profileId)
+
+	req.ID = parsedProfileId
 	repo := repository.New(tx)
 	profile, err := repo.UpdateProfile(ctx, req)
+	if err := tx.Commit(ctx); err != nil {
+		server.SendInternalServerError(c, err, server.WithMessage("Failed to commit transaction"))
+		return
+	}
+
 	if err != nil {
-		server.SendInternalServerError(c, err)
+		server.SendInternalServerError(c, err, server.WithMessage("Here"))
 		return
 	}
 

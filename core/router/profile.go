@@ -14,5 +14,4 @@ func RegisterProfileROutes(srv *server.Server, router *gin.RouterGroup) {
 	{
 		profileGroup.PATCH("/profile", profileHandler.UpdateUserProfile)
 	}
-	// router.POST("", handlers.CreateBook(context.Background(), srv.DB))
 }

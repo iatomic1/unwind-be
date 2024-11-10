@@ -61,21 +61,22 @@ func (q *Queries) InsertProfile(ctx context.Context, arg InsertProfileParams) (*
 
 const updateProfile = `-- name: UpdateProfile :one
 UPDATE profile
-  SET username = coalesce($1, username),
-  name = coalesce($2, name),
-  cover_pic = coalesce($3, cover_pic),
-  profile_pic = coalesce($4, profile_pic),
-  updated_at = now()
-  WHERE id = $5
+SET 
+    username = COALESCE($1, username),
+    name = COALESCE($2, name),
+    cover_pic = COALESCE($3, cover_pic),
+    profile_pic = COALESCE($4, profile_pic),
+    updated_at = now()
+WHERE id = $5
 RETURNING id, user_id, profile_pic, name, username, cover_pic, created_at, updated_at
 `
 
 type UpdateProfileParams struct {
-	Username   *string   `binding:"required,min=8" json:"username"`
+	Username   string    `binding:"required,min=8" json:"username"`
 	Name       *string   `json:"name"`
 	CoverPic   *string   `json:"coverPic"`
 	ProfilePic *string   `json:"profilePic"`
-	ID         uuid.UUID `binding:"required,uuid" json:"id"`
+	ID         uuid.UUID `json:"id"`
 }
 
 func (q *Queries) UpdateProfile(ctx context.Context, arg UpdateProfileParams) (*Profile, error) {
