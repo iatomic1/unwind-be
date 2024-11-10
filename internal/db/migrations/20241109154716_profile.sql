@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS profile (
-  id UUID PRIMARY KEY,  -- tags:`binding:"required,uuid"`
+  id UUID PRIMARY KEY,
   user_id UUID UNIQUE NOT NULL, -- tags:`binding:"required,uuid"`
   profile_pic TEXT,
   name VARCHAR(100),

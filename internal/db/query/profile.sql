@@ -7,13 +7,15 @@ RETURNING *;
 
 -- name: UpdateProfile :one
 UPDATE profile
-  SET username = coalesce(sqlc.narg('username'), username),
-  name = coalesce(sqlc.narg('name'), name),
-  cover_pic = coalesce(sqlc.narg('cover_pic'), cover_pic),
-  profile_pic = coalesce(sqlc.narg('profile_pic'), profile_pic),
-  updated_at = now()
-  WHERE id = sqlc.arg('id')
+SET 
+    username = COALESCE(sqlc.arg('username'), username),
+    name = COALESCE(sqlc.narg('name'), name),
+    cover_pic = COALESCE(sqlc.narg('cover_pic'), cover_pic),
+    profile_pic = COALESCE(sqlc.narg('profile_pic'), profile_pic),
+    updated_at = now()
+WHERE id = sqlc.arg('id')
 RETURNING *;
+
 
 -- name: GetProfileByUserId :one
 SELECT * FROM profile WHERE user_id = $1;

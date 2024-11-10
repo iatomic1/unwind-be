@@ -96,8 +96,15 @@ func ValidateTokens(tokenStr string, cfg *config.Config) (jwt.MapClaims, error) 
 		return nil, ErrInvalidToken
 	}
 
-	if _, ok := claims["id"].(string); !ok {
-		fmt.Println("Debug 8: id claim not found or not string")
+	// Access id within data
+	dataMap, ok := claims["data"].(map[string]interface{})
+	if !ok {
+		fmt.Println("Debug 8: data claim not found or not a map")
+		return nil, ErrInvalidToken
+	}
+
+	if _, ok := dataMap["id"].(string); !ok {
+		fmt.Println("Debug 9: id claim within data not found or not string")
 		return nil, ErrInvalidToken
 	}
 
@@ -142,6 +149,7 @@ func ExtractDataFromToken(claims jwt.MapClaims) (EmailID, error) {
 	if !ok {
 		return EmailID{}, ErrInvalidToken
 	}
+
 	profileId, ok := data["profileId"].(string)
 	if !ok {
 		return EmailID{}, ErrInvalidToken

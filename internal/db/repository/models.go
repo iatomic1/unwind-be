@@ -11,7 +11,7 @@ import (
 )
 
 type Profile struct {
-	ID         uuid.UUID `binding:"required,uuid" json:"id"`
+	ID         uuid.UUID `json:"id"`
 	UserID     uuid.UUID `binding:"required,uuid" json:"userId"`
 	ProfilePic *string   `json:"profilePic"`
 	Name       *string   `json:"name"`
@@ -22,7 +22,7 @@ type Profile struct {
 }
 
 type User struct {
-	ID        uuid.UUID `binding:"required,uuid" json:"id"`
+	ID        uuid.UUID `json:"id"`
 	Email     string    `binding:"required,email" json:"email"`
 	Password  string    `binding:"required" json:"password"`
 	CreatedAt time.Time `json:"createdAt"`

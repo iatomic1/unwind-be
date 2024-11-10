@@ -24,14 +24,10 @@ sql:
         go_type:
           import: time
           type: Time
-      - column: user.id
-        go_struct_tag: binding:"required,uuid"
       - column: user.email
         go_struct_tag: binding:"required,email"
       - column: user.password
         go_struct_tag: binding:"required"
-      - column: profile.id
-        go_struct_tag: binding:"required,uuid"
       - column: profile.user_id
         go_struct_tag: binding:"required,uuid"
       - column: profile.username

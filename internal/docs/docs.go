@@ -251,7 +251,6 @@ const docTemplate = `{
         "github_com_adeyemialameen04_unwind-be_internal_db_repository.Profile": {
             "type": "object",
             "required": [
-                "id",
                 "userId",
                 "username"
             ],
@@ -301,7 +300,6 @@ const docTemplate = `{
         "github_com_adeyemialameen04_unwind-be_internal_db_repository.UpdateProfileParams": {
             "type": "object",
             "required": [
-                "id",
                 "username"
             ],
             "properties": {

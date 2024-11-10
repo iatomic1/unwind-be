@@ -91,6 +91,7 @@ func RefreshToenMiddleware(cfg *config.Config) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		fmt.Println(data, "middleware")
 		c.Set("userId", data.ID)
 		c.Set("profileId", data.ProfileId)
 		c.Set("email", data.Email)

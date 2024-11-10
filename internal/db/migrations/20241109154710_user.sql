@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS "user" (
-  id UUID PRIMARY KEY,  -- tags:`binding:"required,uuid"`
+  id UUID PRIMARY KEY,
   email VARCHAR(100) NOT NULL,    -- tags:`binding:"required,email"`
   password VARCHAR(255) NOT NULL,    -- tags:`binding:"required"`
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
