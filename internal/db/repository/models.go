@@ -8,31 +8,21 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type Book struct {
-	ID        uuid.UUID `json:"id"`
-	Title     string    `binding:"required" json:"title"`
-	Author    string    `binding:"required" json:"author"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
-}
-
 type Profile struct {
-	ID         uuid.UUID   `json:"id"`
-	UserID     pgtype.UUID `binding:"required,uuid" json:"userId"`
-	ProfilePic *string     `json:"profilePic"`
-	Name       *string     `json:"name"`
-	CoverPic   *string     `json:"coverPic"`
-	CreatedAt  time.Time   `json:"createdAt"`
-	UpdatedAt  time.Time   `json:"updatedAt"`
+	ID         uuid.UUID `binding:"required,uuid" json:"id"`
+	UserID     uuid.UUID `binding:"required,uuid" json:"userId"`
+	ProfilePic *string   `json:"profilePic"`
+	Name       *string   `json:"name"`
+	Username   string    `binding:"required,min=8" json:"username"`
+	CoverPic   *string   `json:"coverPic"`
+	CreatedAt  time.Time `json:"createdAt"`
+	UpdatedAt  time.Time `json:"updatedAt"`
 }
 
 type User struct {
-	ID        uuid.UUID `json:"id"`
-	Name      *string   `json:"name"`
-	Username  *string   `json:"username"`
+	ID        uuid.UUID `binding:"required,uuid" json:"id"`
 	Email     string    `binding:"required,email" json:"email"`
 	Password  string    `binding:"required" json:"password"`
 	CreatedAt time.Time `json:"createdAt"`

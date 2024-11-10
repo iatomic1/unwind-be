@@ -7,7 +7,14 @@ import (
 
 	"github.com/adeyemialameen04/unwind-be/internal/config"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
+
+type EmailID struct {
+	Email     string `json:"email"`
+	ID        string `json:"id"`
+	ProfileId string `json:"profileId"`
+}
 
 var (
 	ErrInvalidToken     = errors.New("invalid token")
@@ -15,7 +22,7 @@ var (
 	ErrInvalidTokenType = errors.New("invalid token type")
 )
 
-func CreateJWT(userId string, refresh bool, cfg *config.Config) (string, error) {
+func CreateJWT(data EmailID, refresh bool, cfg *config.Config) (string, error) {
 	var (
 		expiration time.Time
 		secret     []byte
@@ -30,7 +37,12 @@ func CreateJWT(userId string, refresh bool, cfg *config.Config) (string, error) 
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":      userId,
+		"data": EmailID{
+			ID:        data.ID,
+			Email:     data.Email,
+			ProfileId: data.ProfileId,
+		},
+		"jti":     uuid.New(),
 		"expires": expiration.Unix(),
 		"refresh": refresh,
 	})
@@ -120,12 +132,22 @@ func ValidateRefreshToken(tokenStr string, cfg *config.Config) (jwt.MapClaims, e
 	return claims, nil
 }
 
-func ExtractUserID(claims jwt.MapClaims) (string, error) {
-	userId, ok := claims["id"].(string)
+func ExtractID(claims jwt.MapClaims) (string, string, error) {
+	data, ok := claims["data"].(map[string]interface{})
 	if !ok {
-		return "", ErrInvalidToken
+		return "", "", ErrInvalidToken
 	}
-	return userId, nil
+
+	userId, ok := data["id"].(string)
+	if !ok {
+		return "", "", ErrInvalidToken
+	}
+	profileId, ok := data["profileId"].(string)
+	if !ok {
+		return "", "", ErrInvalidToken
+	}
+
+	return userId, profileId, nil
 }
 
 type TokenPair struct {
@@ -133,13 +155,13 @@ type TokenPair struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
-func GenerateTokenPair(userID string, cfg *config.Config) (TokenPair, error) {
-	accessToken, err := CreateJWT(userID, false, cfg)
+func GenerateTokenPair(data EmailID, cfg *config.Config) (TokenPair, error) {
+	accessToken, err := CreateJWT(data, false, cfg)
 	if err != nil {
 		return TokenPair{}, err
 	}
 
-	refreshToken, err := CreateJWT(userID, true, cfg)
+	refreshToken, err := CreateJWT(data, true, cfg)
 	if err != nil {
 		return TokenPair{}, err
 	}

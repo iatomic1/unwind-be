@@ -55,7 +55,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/core_handlers_auth.RegisterResponse"
+                                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_domain.AuthResponse"
                                         }
                                     }
                                 }
@@ -85,6 +85,11 @@ const docTemplate = `{
         },
         "/auth/refresh": {
             "get": {
+                "security": [
+                    {
+                        "RefreshTokenBearer": []
+                    }
+                ],
                 "description": "Refreshes token to get new token pair",
                 "consumes": [
                     "application/json"
@@ -119,7 +124,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.RegisterUserParams"
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_domain.RegisterRequest"
                         }
                     }
                 ],
@@ -135,7 +140,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/core_handlers_auth.RegisterResponse"
+                                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_domain.AuthResponse"
                                         }
                                     }
                                 }
@@ -163,59 +168,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/books": {
-            "get": {
-                "description": "Get a list of all books",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Books"
-                ],
-                "summary": "Get all books",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Books retrieved successfully",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Book"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "post": {
+        "/user/profile": {
+            "patch": {
                 "security": [
                     {
                         "AccessTokenBearer": []
                     }
                 ],
-                "description": "Insert a new book into the database",
+                "description": "Updates a user profile",
                 "consumes": [
                     "application/json"
                 ],
@@ -223,23 +183,23 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Books"
+                    "User"
                 ],
-                "summary": "Create a new book",
+                "summary": "Update Profile",
                 "parameters": [
                     {
-                        "description": "Book data",
+                        "description": "Profile Data",
                         "name": "book",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.InsertBookParams"
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.UpdateProfileParams"
                         }
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Book created successfully",
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "allOf": [
                                 {
@@ -249,29 +209,11 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Book"
+                                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Profile"
                                         }
                                     }
                                 }
                             ]
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request data",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to start transaction or insert book",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
                         }
                     }
                 }
@@ -287,20 +229,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string"
-                }
-            }
-        },
-        "core_handlers_auth.RegisterResponse": {
-            "type": "object",
-            "properties": {
-                "accessToken": {
-                    "type": "string"
                 },
-                "refreshToken": {
+                "profileId": {
                     "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/EmailID"
                 }
             }
         },
@@ -317,14 +248,15 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_adeyemialameen04_unwind-be_internal_db_repository.Book": {
+        "github_com_adeyemialameen04_unwind-be_internal_db_repository.Profile": {
             "type": "object",
             "required": [
-                "author",
-                "title"
+                "id",
+                "userId",
+                "username"
             ],
             "properties": {
-                "author": {
+                "coverPic": {
                     "type": "string"
                 },
                 "createdAt": {
@@ -333,26 +265,21 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "title": {
+                "name": {
+                    "type": "string"
+                },
+                "profilePic": {
                     "type": "string"
                 },
                 "updatedAt": {
                     "type": "string"
-                }
-            }
-        },
-        "github_com_adeyemialameen04_unwind-be_internal_db_repository.InsertBookParams": {
-            "type": "object",
-            "required": [
-                "author",
-                "title"
-            ],
-            "properties": {
-                "author": {
+                },
+                "userId": {
                     "type": "string"
                 },
-                "title": {
-                    "type": "string"
+                "username": {
+                    "type": "string",
+                    "minLength": 8
                 }
             }
         },
@@ -367,6 +294,64 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_adeyemialameen04_unwind-be_internal_db_repository.UpdateProfileParams": {
+            "type": "object",
+            "required": [
+                "id",
+                "username"
+            ],
+            "properties": {
+                "coverPic": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "profilePic": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string",
+                    "minLength": 8
+                }
+            }
+        },
+        "github_com_adeyemialameen04_unwind-be_internal_domain.AuthResponse": {
+            "type": "object",
+            "properties": {
+                "accessToken": {
+                    "type": "string"
+                },
+                "refreshToken": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/EmailID"
+                }
+            }
+        },
+        "github_com_adeyemialameen04_unwind-be_internal_domain.RegisterRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }

@@ -17,5 +17,4 @@ func RegisterAuthRoutes(srv *server.Server, router *gin.RouterGroup) {
 	{
 		authGroup.GET("/refresh", authHandler.RefreshToken)
 	}
-	// router.POST("", handlers.CreateBook(context.Background(), srv.DB))
 }
