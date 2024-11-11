@@ -178,7 +178,7 @@ func (h *Handler) RegisterUser(c *gin.Context) {
 	tokens, err := utils.GenerateTokenPair(utils.EmailID{
 		Email:     user.Email,
 		ID:        user.ID.String(),
-		ProfileId: user.ID.String(),
+		ProfileId: profile.ID.String(),
 	}, h.srv.Config)
 	response := domain.AuthResponse{
 		TokenPair: utils.TokenPair{
@@ -195,7 +195,7 @@ func (h *Handler) RegisterUser(c *gin.Context) {
 	server.SendCreated(c, response, server.WithMessage(domain.UserCreated))
 }
 
-//	@Summary		Refreh Token
+//	@Summary		Refresh Token
 //	@Description	Refreshes token to get new token pair
 //
 // @Security		RefreshTokenBearer

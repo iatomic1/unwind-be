@@ -6,6 +6,7 @@ import (
 
 	"github.com/adeyemialameen04/unwind-be/core/server"
 	"github.com/adeyemialameen04/unwind-be/internal/db/repository"
+	"github.com/adeyemialameen04/unwind-be/internal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/golodash/galidator"
 	"github.com/google/uuid"
@@ -61,8 +62,22 @@ func (h *Handler) UpdateUserProfile(c *gin.Context) {
 	}
 	fmt.Println(profileId)
 
+	coverPicUrl, err := utils.UploadImage(h.srv.Cld, *req.CoverPic, req.Username)
+	if err != nil {
+		server.SendInternalServerError(c, err, server.WithMessage("Error uploading cover pic"))
+		return
+	}
+	profilePicUrl, err := utils.UploadImage(h.srv.Cld, *req.CoverPic, req.Username)
+	if err != nil {
+		server.SendInternalServerError(c, err, server.WithMessage("Error uploading profile pic"))
+		return
+	}
+
 	req.ID = parsedProfileId
+	req.CoverPic = &coverPicUrl
+	req.ProfilePic = &profilePicUrl
 	repo := repository.New(tx)
+
 	profile, err := repo.UpdateProfile(ctx, req)
 	if err := tx.Commit(ctx); err != nil {
 		server.SendInternalServerError(c, err, server.WithMessage("Failed to commit transaction"))

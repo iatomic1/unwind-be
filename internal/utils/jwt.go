@@ -29,10 +29,10 @@ func CreateJWT(data EmailID, refresh bool, cfg *config.Config) (string, error) {
 	)
 
 	if refresh {
-		expiration = time.Now().Add(time.Duration(cfg.RefreshExpirationHour) * time.Hour)
+		expiration = time.Now().Add(time.Duration(cfg.RefreshExpirationHour * float64(time.Hour)))
 		secret = []byte(cfg.RefreshJwtKey)
 	} else {
-		expiration = time.Now().Add(time.Duration(cfg.AccessExpirationHour) * time.Hour)
+		expiration = time.Now().Add(time.Duration(cfg.AccessExpirationHour * float64(time.Hour)))
 		secret = []byte(cfg.AccessJwtKey)
 	}
 

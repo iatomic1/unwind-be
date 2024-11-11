@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/adeyemialameen04/unwind-be/internal/config"
+	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
 )
@@ -19,12 +20,14 @@ type Server struct {
 	Router *gin.Engine
 	Config *config.Config
 	DB     *pgx.Conn
+	Cld    *cloudinary.Cloudinary
 }
 
-func NewServer(cfg *config.Config, db *pgx.Conn) (*Server, error) {
+func NewServer(cfg *config.Config, db *pgx.Conn, cld *cloudinary.Cloudinary) (*Server, error) {
 	return &Server{
 		Config: cfg,
 		DB:     db,
+		Cld:    cld,
 	}, nil
 }
 
