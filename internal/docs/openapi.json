@@ -1,0 +1,384 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "description": "API for Unwind",
+        "title": "Unwind API",
+        "contact": {
+            "name": "Al-Ameen Adeyemi",
+            "url": "https://github.com/adeyemialameen04",
+            "email": "adeyemialameen04@gmail.com"
+        },
+        "version": "1.0"
+    },
+    "paths": {
+        "/auth/login": {
+            "post": {
+                "description": "Logs a user into his/her account",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login to your account",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_internal_db_repository.RegisterUserParams"
+                            }
+                        }
+                    },
+                    "description": "Login data",
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Login success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.Response"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_internal_domain.AuthResponse"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to start transaction or insert book",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/refresh": {
+            "get": {
+                "security": [
+                    {
+                        "RefreshTokenBearer": []
+                    }
+                ],
+                "description": "Refreshes token to get new token pair",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Refresh Token",
+                "responses": {}
+            }
+        },
+        "/auth/signup": {
+            "post": {
+                "description": "Create an account on unwind",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Create an account",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_internal_domain.RegisterRequest"
+                            }
+                        }
+                    },
+                    "description": "Signup data",
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "User created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.Response"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_internal_domain.AuthResponse"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to start transaction or insert book",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/user/profile": {
+            "patch": {
+                "security": [
+                    {
+                        "AccessTokenBearer": []
+                    }
+                ],
+                "description": "Updates a user profile",
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update Profile",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_internal_db_repository.UpdateProfileParams"
+                            }
+                        }
+                    },
+                    "description": "Profile Data",
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.Response"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_internal_db_repository.Profile"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "description": "Authentication endpoints",
+            "name": "Auth"
+        }
+    ],
+    "servers": [
+        {
+            "url": "http://localhost:8080/api/v1"
+        },
+        {
+            "url": "https://localhost:8080/api/v1"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "AccessTokenBearer": {
+                "description": "AccessTokenBearer Authentication",
+                "type": "apiKey",
+                "name": "Authorization",
+                "in": "header"
+            },
+            "RefreshTokenBearer": {
+                "description": "RefreshTokenBearer Authentication",
+                "type": "apiKey",
+                "name": "Authorization",
+                "in": "header"
+            }
+        },
+        "schemas": {
+            "EmailID": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "profileId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "github_com_adeyemialameen04_unwind-be_core_server.Response": {
+                "type": "object",
+                "properties": {
+                    "data": {},
+                    "errors": {},
+                    "message": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "github_com_adeyemialameen04_unwind-be_internal_db_repository.Profile": {
+                "type": "object",
+                "required": [
+                    "userId",
+                    "username"
+                ],
+                "properties": {
+                    "coverPic": {
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "profilePic": {
+                        "type": "string"
+                    },
+                    "updatedAt": {
+                        "type": "string"
+                    },
+                    "userId": {
+                        "type": "string"
+                    },
+                    "username": {
+                        "type": "string",
+                        "minLength": 8
+                    }
+                }
+            },
+            "github_com_adeyemialameen04_unwind-be_internal_db_repository.RegisterUserParams": {
+                "type": "object",
+                "required": [
+                    "email",
+                    "password"
+                ],
+                "properties": {
+                    "email": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    }
+                }
+            },
+            "github_com_adeyemialameen04_unwind-be_internal_db_repository.UpdateProfileParams": {
+                "type": "object",
+                "required": [
+                    "username"
+                ],
+                "properties": {
+                    "coverPic": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "profilePic": {
+                        "type": "string"
+                    },
+                    "username": {
+                        "type": "string",
+                        "minLength": 8
+                    }
+                }
+            },
+            "github_com_adeyemialameen04_unwind-be_internal_domain.AuthResponse": {
+                "type": "object",
+                "properties": {
+                    "accessToken": {
+                        "type": "string"
+                    },
+                    "refreshToken": {
+                        "type": "string"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/EmailID"
+                    }
+                }
+            },
+            "github_com_adeyemialameen04_unwind-be_internal_domain.RegisterRequest": {
+                "type": "object",
+                "required": [
+                    "email",
+                    "password",
+                    "username"
+                ],
+                "properties": {
+                    "email": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    },
+                    "username": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

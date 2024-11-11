@@ -148,7 +148,7 @@ paths:
       responses: {}
       security:
       - RefreshTokenBearer: []
-      summary: Refreh Token
+      summary: Refresh Token
       tags:
       - Auth
   /auth/signup:
@@ -219,6 +219,9 @@ paths:
       summary: Update Profile
       tags:
       - User
+schemes:
+- http
+- https
 securityDefinitions:
   AccessTokenBearer:
     description: AccessTokenBearer Authentication

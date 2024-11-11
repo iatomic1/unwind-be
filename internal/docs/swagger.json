@@ -1,4 +1,8 @@
 {
+    "schemes": [
+        "http",
+        "https"
+    ],
     "swagger": "2.0",
     "info": {
         "description": "API for Unwind",
@@ -94,7 +98,7 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Refreh Token",
+                "summary": "Refresh Token",
                 "responses": {}
             }
         },

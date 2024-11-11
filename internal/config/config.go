@@ -3,19 +3,21 @@ package config
 import "github.com/spf13/viper"
 
 type Config struct {
-	RedisAddress          string `mapstructure:"REDIS_ADDRESS"`
-	DbUrl                 string `mapstructure:"DB_URL"`
-	DbType                string `mapstructure:"DB_TYPE"`
-	AccessJwtKey          string `mapstructure:"ACCESS_JWT_KEY"`
-	RefreshJwtKey         string `mapstructure:"REFRESH_JWT_KEY"`
-	Environment           string `mapstructure:"ENVIROMENT"`
-	Host                  string `mapstructure:"HOST"`
-	HttpAddress           string `mapstructure:"HTTP_SERVER_ADDRESS"`
-	RedisPassword         string `mapstructure:"REDIS_PASSWORD"`
-	RedisUsername         string `mapstructure:"REDIS_USERNAME"`
-	AccessExpirationHour  int64  `mapstructure:"ACCESS_EXPIRATION_HOUR"`
-	RefreshExpirationHour int64  `mapstructure:"REFRESH_EXPIRATION_HOUR"`
-	RedisDB               int    `mapstructure:"REDIS_DB"`
+	Environment           string  `mapstructure:"ENVIROMENT"`
+	HttpAddress           string  `mapstructure:"HTTP_SERVER_ADDRESS"`
+	DbURL                 string  `mapstructure:"DB_URL"`
+	DbType                string  `mapstructure:"DB_TYPE"`
+	AccessJwtKey          string  `mapstructure:"ACCESS_JWT_KEY"`
+	RefreshJwtKey         string  `mapstructure:"REFRESH_JWT_KEY"`
+	ApiPrefixStr          string  `mapstructure:"API_V1_PREFIX_STRING"`
+	Host                  string  `mapstructure:"HOST"`
+	RedisAddress          string  `mapstructure:"REDIS_ADDRESS"`
+	RedisPassword         string  `mapstructure:"REDIS_PASSWORD"`
+	RedisUsername         string  `mapstructure:"REDIS_USERNAME"`
+	CoudinaryURL          string  `mapstructure:"CLOUDINARY_URL"`
+	RefreshExpirationHour float64 `mapstructure:"REFRESH_EXPIRATION_HOUR"`
+	RedisDB               int     `mapstructure:"REDIS_DB"`
+	AccessExpirationHour  float64 `mapstructure:"ACCESS_EXPIRATION_HOUR"`
 }
 
 func Load(path string) (*Config, error) {

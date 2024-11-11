@@ -10,22 +10,18 @@ import (
 )
 
 func RegisterDocsRoutes(router *gin.RouterGroup) {
-	specUrl := filepath.Join(projectpath.Root, "/internal/docs/swagger.json")
+	specUrl := filepath.Join(projectpath.Root, "/internal/docs/openapi.json")
 	// spec2Url := filepath.Join(projectpath.Root, "/oas.json")
 
 	router.GET("/reference", func(c *gin.Context) {
 		content, err := scalargo.NewV2(
-			scalargo.WithSpecURL("/docs/swagger.json"),
+			scalargo.WithSpecURL("/api/v1/docs/swagger.json"),
 			scalargo.WithMetaDataOpts(
 				scalargo.WithTitle("Unwind"),
 			),
-			scalargo.WithServers(scalargo.Server{
-				URL:         "http://localhost:8080",
-				Description: "Default Server",
-			}),
 			scalargo.WithTheme(scalargo.ThemeDeepSpace),
 			scalargo.WithLayout(scalargo.LayoutClassic),
-			scalargo.WithForceDarkMode(),
+			scalargo.WithBaseServerURL("http://localhost:2020/"),
 		)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

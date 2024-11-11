@@ -100,7 +100,7 @@ const docTemplate = `{
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Refreh Token",
+                "summary": "Refresh Token",
                 "responses": {}
             }
         },
@@ -382,7 +382,7 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
 	BasePath:         "/api/v1",
-	Schemes:          []string{},
+	Schemes:          []string{"http", "https"},
 	Title:            "Unwind API",
 	Description:      "API for Unwind",
 	InfoInstanceName: "swagger",
