@@ -13,7 +13,7 @@ func RegisterAuthRoutes(srv *server.Server, router *gin.RouterGroup) {
 	authGroup.POST("/login", authHandler.LoginUser)
 	authGroup.POST("/signup", authHandler.RegisterUser)
 
-	authGroup.Use(middleware.RefreshToenMiddleware(srv.Config))
+	authGroup.Use(middleware.RefreshTokenMiddleware(srv.Config))
 	{
 		authGroup.GET("/refresh", authHandler.RefreshToken)
 	}

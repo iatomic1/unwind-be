@@ -19,3 +19,6 @@ RETURNING *;
 
 -- name: GetProfileByUserId :one
 SELECT * FROM profile WHERE user_id = $1;
+
+-- name: GetProfileById :one
+SELECT * FROM profile WHERE id = $1;

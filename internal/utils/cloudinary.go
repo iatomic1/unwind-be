@@ -7,6 +7,7 @@ import (
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/cloudinary/cloudinary-go/v2/api"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
+	"github.com/google/uuid"
 )
 
 func NewCloudinaryInstance(cfg *config.Config) (*cloudinary.Cloudinary, error) {
@@ -20,13 +21,18 @@ func NewCloudinaryInstance(cfg *config.Config) (*cloudinary.Cloudinary, error) {
 
 func UploadImage(cld *cloudinary.Cloudinary, base64Str string, imageName string) (string, error) {
 	ctx := context.Background()
+
+	// if imageName == "" {
+	imageName = uuid.New().String()
+	// }
+
 	resp, err := cld.Upload.Upload(ctx, base64Str, uploader.UploadParams{
 		PublicID:       imageName,
 		UniqueFilename: api.Bool(true),
-		Overwrite:      api.Bool(true),
+		Overwrite:      api.Bool(false),
 	})
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	return resp.SecureURL, nil

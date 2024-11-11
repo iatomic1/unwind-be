@@ -66,14 +66,11 @@
                         }
                     },
                     "500": {
-                        "description": "Failed to start transaction or insert book",
+                        "description": "Internal server error",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "additionalProperties": {
-                                        "type": "string"
-                                    }
+                                    "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse"
                                 }
                             }
                         }
@@ -93,7 +90,60 @@
                     "Auth"
                 ],
                 "summary": "Refresh Token",
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "TokenPair",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_internal_utils.TokenPair"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Profile not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/auth/signup": {
@@ -137,28 +187,12 @@
                             }
                         }
                     },
-                    "400": {
-                        "description": "Invalid request data",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "additionalProperties": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        }
-                    },
                     "500": {
-                        "description": "Failed to start transaction or insert book",
+                        "description": "Internal server error",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "additionalProperties": {
-                                        "type": "string"
-                                    }
+                                    "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse"
                                 }
                             }
                         }
@@ -167,27 +201,19 @@
             }
         },
         "/user/profile": {
-            "patch": {
+            "get": {
                 "security": [
                     {
                         "AccessTokenBearer": []
                     }
                 ],
-                "description": "Updates a user profile",
+                "description": "Retrieves a user profile",
                 "tags": [
                     "User"
                 ],
-                "summary": "Update Profile",
+                "summary": "Get Profile",
                 "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_internal_db_repository.UpdateProfileParams"
-                            }
-                        }
-                    },
-                    "description": "Profile Data",
-                    "required": true
+                    "$ref": "#/components/requestBodies/github_com_adeyemialameen04_unwind-be_internal_db_repository.UpdateProfileParams"
                 },
                 "responses": {
                     "200": {
@@ -197,7 +223,7 @@
                                 "schema": {
                                     "allOf": [
                                         {
-                                            "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.Response"
+                                            "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse"
                                         },
                                         {
                                             "type": "object",
@@ -208,6 +234,105 @@
                                             }
                                         }
                                     ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Profile not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "AccessTokenBearer": []
+                    }
+                ],
+                "description": "Updates a user profile including optional profile and cover pictures",
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update Profile",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/github_com_adeyemialameen04_unwind-be_internal_db_repository.UpdateProfileParams"
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_internal_db_repository.Profile"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Profile not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse"
                                 }
                             }
                         }
@@ -231,6 +356,19 @@
         }
     ],
     "components": {
+        "requestBodies": {
+            "github_com_adeyemialameen04_unwind-be_internal_db_repository.UpdateProfileParams": {
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_internal_db_repository.UpdateProfileParams"
+                        }
+                    }
+                },
+                "description": "Profile Data",
+                "required": true
+            }
+        },
         "securitySchemes": {
             "AccessTokenBearer": {
                 "description": "AccessTokenBearer Authentication",
@@ -260,6 +398,32 @@
                     }
                 }
             },
+            "github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse": {
+                "type": "object",
+                "properties": {
+                    "errors": {},
+                    "message": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "Internal Server Error"
+                    }
+                }
+            },
+            "github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse": {
+                "type": "object",
+                "properties": {
+                    "errors": {},
+                    "message": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "Not Found"
+                    }
+                }
+            },
             "github_com_adeyemialameen04_unwind-be_core_server.Response": {
                 "type": "object",
                 "properties": {
@@ -270,6 +434,32 @@
                     },
                     "status": {
                         "type": "string"
+                    }
+                }
+            },
+            "github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse": {
+                "type": "object",
+                "properties": {
+                    "data": {},
+                    "message": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "OK"
+                    }
+                }
+            },
+            "github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse": {
+                "type": "object",
+                "properties": {
+                    "errors": {},
+                    "message": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "Unauthorized"
                     }
                 }
             },
@@ -375,6 +565,17 @@
                         "type": "string"
                     },
                     "username": {
+                        "type": "string"
+                    }
+                }
+            },
+            "github_com_adeyemialameen04_unwind-be_internal_utils.TokenPair": {
+                "type": "object",
+                "properties": {
+                    "accessToken": {
+                        "type": "string"
+                    },
+                    "refreshToken": {
                         "type": "string"
                     }
                 }

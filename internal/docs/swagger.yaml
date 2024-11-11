@@ -9,6 +9,24 @@ definitions:
       profileId:
         type: string
     type: object
+  github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse:
+    properties:
+      errors: {}
+      message:
+        type: string
+      status:
+        example: Internal Server Error
+        type: string
+    type: object
+  github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse:
+    properties:
+      errors: {}
+      message:
+        type: string
+      status:
+        example: Not Found
+        type: string
+    type: object
   github_com_adeyemialameen04_unwind-be_core_server.Response:
     properties:
       data: {}
@@ -16,6 +34,24 @@ definitions:
       message:
         type: string
       status:
+        type: string
+    type: object
+  github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse:
+    properties:
+      data: {}
+      message:
+        type: string
+      status:
+        example: OK
+        type: string
+    type: object
+  github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse:
+    properties:
+      errors: {}
+      message:
+        type: string
+      status:
+        example: Unauthorized
         type: string
     type: object
   github_com_adeyemialameen04_unwind-be_internal_db_repository.Profile:
@@ -89,6 +125,13 @@ definitions:
     - password
     - username
     type: object
+  github_com_adeyemialameen04_unwind-be_internal_utils.TokenPair:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -107,7 +150,7 @@ paths:
       parameters:
       - description: Login data
         in: body
-        name: book
+        name: EmailAndPassword
         required: true
         schema:
           $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.RegisterUserParams'
@@ -130,11 +173,9 @@ paths:
               type: string
             type: object
         "500":
-          description: Failed to start transaction or insert book
+          description: Internal server error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse'
       summary: Login to your account
       tags:
       - Auth
@@ -145,7 +186,28 @@ paths:
       description: Refreshes token to get new token pair
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: TokenPair
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_utils.TokenPair'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse'
+        "404":
+          description: Profile not found
+          schema:
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse'
       security:
       - RefreshTokenBearer: []
       summary: Refresh Token
@@ -175,26 +237,18 @@ paths:
                 data:
                   $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_domain.AuthResponse'
               type: object
-        "400":
-          description: Invalid request data
-          schema:
-            additionalProperties:
-              type: string
-            type: object
         "500":
-          description: Failed to start transaction or insert book
+          description: Internal server error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse'
       summary: Create an account
       tags:
       - Auth
   /user/profile:
-    patch:
+    get:
       consumes:
       - application/json
-      description: Updates a user profile
+      description: Retrieves a user profile
       parameters:
       - description: Profile Data
         in: body
@@ -209,11 +263,63 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.Response'
+            - $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse'
             - properties:
                 data:
                   $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Profile'
               type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse'
+        "404":
+          description: Profile not found
+          schema:
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse'
+      security:
+      - AccessTokenBearer: []
+      summary: Get Profile
+      tags:
+      - User
+    patch:
+      consumes:
+      - application/json
+      description: Updates a user profile including optional profile and cover pictures
+      parameters:
+      - description: Profile Data
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.UpdateProfileParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Profile'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse'
+        "404":
+          description: Profile not found
+          schema:
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse'
       security:
       - AccessTokenBearer: []
       summary: Update Profile

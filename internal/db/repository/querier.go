@@ -11,6 +11,7 @@ import (
 )
 
 type Querier interface {
+	GetProfileById(ctx context.Context, id uuid.UUID) (*Profile, error)
 	GetProfileByUserId(ctx context.Context, userID uuid.UUID) (*Profile, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserById(ctx context.Context, id uuid.UUID) (*User, error)

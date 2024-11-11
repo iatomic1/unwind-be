@@ -11,6 +11,26 @@ import (
 	"github.com/google/uuid"
 )
 
+const getProfileById = `-- name: GetProfileById :one
+SELECT id, user_id, profile_pic, name, username, cover_pic, created_at, updated_at FROM profile WHERE id = $1
+`
+
+func (q *Queries) GetProfileById(ctx context.Context, id uuid.UUID) (*Profile, error) {
+	row := q.db.QueryRow(ctx, getProfileById, id)
+	var i Profile
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.ProfilePic,
+		&i.Name,
+		&i.Username,
+		&i.CoverPic,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return &i, err
+}
+
 const getProfileByUserId = `-- name: GetProfileByUserId :one
 SELECT id, user_id, profile_pic, name, username, cover_pic, created_at, updated_at FROM profile WHERE user_id = $1
 `
