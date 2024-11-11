@@ -28,3 +28,12 @@ type User struct {
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
+
+type WatchList struct {
+	ID        uuid.UUID `json:"id"`
+	UserID    uuid.UUID `json:"userId"`
+	AnilistID *string   `binding:"required" json:"anilistId"`
+	HianimeID *string   `binding:"required" json:"hianimeId"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}

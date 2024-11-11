@@ -24,6 +24,10 @@ sql:
         go_type:
           import: time
           type: Time
+      - column: watch_list.anilist_id
+        go_struct_tag: binding:"required"
+      - column: watch_list.hianime_id
+        go_struct_tag: binding:"required"
       - column: user.email
         go_struct_tag: binding:"required,email"
       - column: user.password

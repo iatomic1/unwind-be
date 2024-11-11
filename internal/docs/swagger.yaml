@@ -103,6 +103,24 @@ definitions:
     required:
     - username
     type: object
+  github_com_adeyemialameen04_unwind-be_internal_db_repository.WatchList:
+    properties:
+      anilistId:
+        type: string
+      createdAt:
+        type: string
+      hianimeId:
+        type: string
+      id:
+        type: string
+      updatedAt:
+        type: string
+      userId:
+        type: string
+    required:
+    - anilistId
+    - hianimeId
+    type: object
   github_com_adeyemialameen04_unwind-be_internal_domain.AuthResponse:
     properties:
       accessToken:
@@ -323,6 +341,40 @@ paths:
       security:
       - AccessTokenBearer: []
       summary: Update Profile
+      tags:
+      - User
+  /user/watch-list:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a user watch list.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.WatchList'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse'
+        "404":
+          description: Profile not found
+          schema:
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse'
+      security:
+      - AccessTokenBearer: []
+      summary: Get User WatchList
       tags:
       - User
 schemes:

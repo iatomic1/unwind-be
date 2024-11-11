@@ -323,6 +323,64 @@
                     }
                 }
             }
+        },
+        "/user/watch-list": {
+            "get": {
+                "security": [
+                    {
+                        "AccessTokenBearer": []
+                    }
+                ],
+                "description": "Retrieves a user watch list.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get User WatchList",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.WatchList"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Profile not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -475,6 +533,33 @@
                 "username": {
                     "type": "string",
                     "minLength": 8
+                }
+            }
+        },
+        "github_com_adeyemialameen04_unwind-be_internal_db_repository.WatchList": {
+            "type": "object",
+            "required": [
+                "anilistId",
+                "hianimeId"
+            ],
+            "properties": {
+                "anilistId": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "hianimeId": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
                 }
             }
         },

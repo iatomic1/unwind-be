@@ -14,7 +14,7 @@ func SetupRouter(srv *server.Server) {
 	{
 		RegisterAuthRoutes(srv, api.Group("/auth"))
 		RegisterDocsRoutes(api.Group("/docs"))
-		RegisterProfileROutes(srv, api.Group("/user"))
+		RegisterUserRoutes(srv, api.Group("/user"))
 	}
 
 	srv.Router = router
