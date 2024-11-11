@@ -29,9 +29,9 @@ sql:
       - column: watch_list.hianime_id
         go_struct_tag: binding:"required"
       - column: user.email
-        go_struct_tag: binding:"required,email"
+        go_struct_tag: binding:"required,email" example:"mosh@mail.com"
       - column: user.password
-        go_struct_tag: binding:"required"
+        go_struct_tag: binding:"required" example:"Hello"
       - column: profile.user_id
         go_struct_tag: binding:"required,uuid"
       - column: profile.username

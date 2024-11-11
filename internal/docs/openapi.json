@@ -366,7 +366,10 @@
                                             "type": "object",
                                             "properties": {
                                                 "data": {
-                                                    "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_internal_db_repository.WatchList"
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_internal_db_repository.WatchList"
+                                                    }
                                                 }
                                             }
                                         }
@@ -387,6 +390,83 @@
                     },
                     "404": {
                         "description": "Profile not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "AccessTokenBearer": []
+                    }
+                ],
+                "description": "Retrieves a user watch list.",
+                "tags": [
+                    "User"
+                ],
+                "summary": "Adds an anime to a user watch list",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_internal_db_repository.AddToListParams"
+                            }
+                        }
+                    },
+                    "description": "Anime Data",
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_internal_db_repository.WatchList"
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -531,6 +611,24 @@
                     }
                 }
             },
+            "github_com_adeyemialameen04_unwind-be_internal_db_repository.AddToListParams": {
+                "type": "object",
+                "required": [
+                    "anilistId",
+                    "hianimeId"
+                ],
+                "properties": {
+                    "anilistId": {
+                        "type": "string"
+                    },
+                    "hianimeId": {
+                        "type": "string"
+                    },
+                    "userId": {
+                        "type": "string"
+                    }
+                }
+            },
             "github_com_adeyemialameen04_unwind-be_internal_db_repository.Profile": {
                 "type": "object",
                 "required": [
@@ -573,10 +671,12 @@
                 ],
                 "properties": {
                     "email": {
-                        "type": "string"
+                        "type": "string",
+                        "example": "mosh@mail.com"
                     },
                     "password": {
-                        "type": "string"
+                        "type": "string",
+                        "example": "Hello"
                     }
                 }
             },
@@ -654,10 +754,12 @@
                 ],
                 "properties": {
                     "email": {
-                        "type": "string"
+                        "type": "string",
+                        "example": "mosh@mail.com"
                     },
                     "password": {
-                        "type": "string"
+                        "type": "string",
+                        "example": "Hello"
                     },
                     "username": {
                         "type": "string"
