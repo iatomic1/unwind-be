@@ -35,7 +35,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "Login data",
-                        "name": "book",
+                        "name": "EmailAndPassword",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -72,12 +72,9 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Failed to start transaction or insert book",
+                        "description": "Internal server error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse"
                         }
                     }
                 }
@@ -101,7 +98,44 @@ const docTemplate = `{
                     "Auth"
                 ],
                 "summary": "Refresh Token",
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "TokenPair",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_utils.TokenPair"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Profile not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/auth/signup": {
@@ -147,35 +181,90 @@ const docTemplate = `{
                             ]
                         }
                     },
-                    "400": {
-                        "description": "Invalid request data",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
                     "500": {
-                        "description": "Failed to start transaction or insert book",
+                        "description": "Internal server error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse"
                         }
                     }
                 }
             }
         },
         "/user/profile": {
+            "get": {
+                "security": [
+                    {
+                        "AccessTokenBearer": []
+                    }
+                ],
+                "description": "Retrieves a user profile",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get Profile",
+                "parameters": [
+                    {
+                        "description": "Profile Data",
+                        "name": "book",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.UpdateProfileParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Profile"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Profile not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            },
             "patch": {
                 "security": [
                     {
                         "AccessTokenBearer": []
                     }
                 ],
-                "description": "Updates a user profile",
+                "description": "Updates a user profile including optional profile and cover pictures",
                 "consumes": [
                     "application/json"
                 ],
@@ -203,7 +292,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.Response"
+                                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse"
                                 },
                                 {
                                     "type": "object",
@@ -214,6 +303,24 @@ const docTemplate = `{
                                     }
                                 }
                             ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Profile not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse"
                         }
                     }
                 }
@@ -235,6 +342,32 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse": {
+            "type": "object",
+            "properties": {
+                "errors": {},
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "Internal Server Error"
+                }
+            }
+        },
+        "github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse": {
+            "type": "object",
+            "properties": {
+                "errors": {},
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "Not Found"
+                }
+            }
+        },
         "github_com_adeyemialameen04_unwind-be_core_server.Response": {
             "type": "object",
             "properties": {
@@ -245,6 +378,32 @@ const docTemplate = `{
                 },
                 "status": {
                     "type": "string"
+                }
+            }
+        },
+        "github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "OK"
+                }
+            }
+        },
+        "github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse": {
+            "type": "object",
+            "properties": {
+                "errors": {},
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "Unauthorized"
                 }
             }
         },
@@ -350,6 +509,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_adeyemialameen04_unwind-be_internal_utils.TokenPair": {
+            "type": "object",
+            "properties": {
+                "accessToken": {
+                    "type": "string"
+                },
+                "refreshToken": {
                     "type": "string"
                 }
             }

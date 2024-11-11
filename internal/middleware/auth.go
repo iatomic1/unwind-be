@@ -55,7 +55,7 @@ func AccessTokenMiddleware(cfg *config.Config) gin.HandlerFunc {
 	}
 }
 
-func RefreshToenMiddleware(cfg *config.Config) gin.HandlerFunc {
+func RefreshTokenMiddleware(cfg *config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := c.GetHeader("Authorization")
 		if tokenString == "" {

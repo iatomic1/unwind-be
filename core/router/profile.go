@@ -13,5 +13,6 @@ func RegisterProfileROutes(srv *server.Server, router *gin.RouterGroup) {
 	profileGroup.Use(middleware.AccessTokenMiddleware(srv.Config))
 	{
 		profileGroup.PATCH("/profile", profileHandler.UpdateUserProfile)
+		profileGroup.GET("/profile", profileHandler.GetUserProfileByID)
 	}
 }

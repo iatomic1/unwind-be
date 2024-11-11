@@ -30,10 +30,10 @@ func NewAuthHandler(srv *server.Server) *Handler {
 //	@Tags			Auth
 //	@Accept			json
 //	@Produce		json
-//	@Param			book	body		repository.RegisterUserParams				true	"Login data"
+//	@Param			EmailAndPassword	body		repository.RegisterUserParams				true	"Login data"
 //	@Success		201		{object}	server.Response{data=domain.AuthResponse}	"Login success"
 //	@Failure		400		{object}	map[string]string							"Invalid request data"
-//	@Failure		500		{object}	map[string]string							"Failed to start transaction or insert book"
+//	@Failure		500					{object}	server.InternalServerErrorResponse			"Internal server error"
 //	@Router			/auth/login [post]
 func (h *Handler) LoginUser(c *gin.Context) {
 	g := galidator.New().CustomMessages(galidator.Messages{
@@ -104,8 +104,7 @@ func (h *Handler) LoginUser(c *gin.Context) {
 //	@Produce		json
 //	@Param			EmailAndPassword	body		domain.RegisterRequest						true	"Signup data"
 //	@Success		201					{object}	server.Response{data=domain.AuthResponse}	"User created successfully"
-//	@Failure		400					{object}	map[string]string							"Invalid request data"
-//	@Failure		500					{object}	map[string]string							"Failed to start transaction or insert book"
+//	@Failure		500					{object}	server.InternalServerErrorResponse			"Internal server error"
 //	@Router			/auth/signup [post]
 func (h *Handler) RegisterUser(c *gin.Context) {
 	g := galidator.New().CustomMessages(galidator.Messages{
@@ -195,15 +194,17 @@ func (h *Handler) RegisterUser(c *gin.Context) {
 	server.SendCreated(c, response, server.WithMessage(domain.UserCreated))
 }
 
-//	@Summary		Refresh Token
-//	@Description	Refreshes token to get new token pair
-//
+// @Summary		Refresh Token
+// @Description	Refreshes token to get new token pair
 // @Security		RefreshTokenBearer
-//
-//	@Tags			Auth
-//	@Accept			json
-//	@Produce		json
-//	@Router			/auth/refresh [get]
+// @Tags			Auth
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	server.SuccessResponse{data=utils.TokenPair}	"TokenPair"
+// @Failure		401	{object}	server.UnauthorizedResponse						"Unauthorized"
+// @Failure		404	{object}	server.NotFoundResponse							"Profile not found"
+// @Failure		500	{object}	server.InternalServerErrorResponse				"Internal server error"
+// @Router			/auth/refresh [get]
 func (h *Handler) RefreshToken(c *gin.Context) {
 	ctx := context.Background()
 
