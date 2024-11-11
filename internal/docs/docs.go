@@ -356,7 +356,10 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.WatchList"
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.WatchList"
+                                            }
                                         }
                                     }
                                 }
@@ -371,6 +374,73 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Profile not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "AccessTokenBearer": []
+                    }
+                ],
+                "description": "Retrieves a user watch list.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Adds an anime to a user watch list",
+                "parameters": [
+                    {
+                        "description": "Anime Data",
+                        "name": "Anime",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.AddToListParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.WatchList"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse"
                         }
@@ -465,6 +535,24 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_adeyemialameen04_unwind-be_internal_db_repository.AddToListParams": {
+            "type": "object",
+            "required": [
+                "anilistId",
+                "hianimeId"
+            ],
+            "properties": {
+                "anilistId": {
+                    "type": "string"
+                },
+                "hianimeId": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_adeyemialameen04_unwind-be_internal_db_repository.Profile": {
             "type": "object",
             "required": [
@@ -507,10 +595,12 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "mosh@mail.com"
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Hello"
                 }
             }
         },
@@ -588,10 +678,12 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "mosh@mail.com"
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Hello"
                 },
                 "username": {
                     "type": "string"

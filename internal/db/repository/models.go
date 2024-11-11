@@ -23,8 +23,8 @@ type Profile struct {
 
 type User struct {
 	ID        uuid.UUID `json:"id"`
-	Email     string    `binding:"required,email" json:"email"`
-	Password  string    `binding:"required" json:"password"`
+	Email     string    `binding:"required,email" example:"mosh@mail.com" json:"email"`
+	Password  string    `binding:"required" example:"Hello" json:"password"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }

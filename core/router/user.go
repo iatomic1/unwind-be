@@ -11,15 +11,19 @@ import (
 func RegisterUserRoutes(srv *server.Server, router *gin.RouterGroup) {
 	profileHandler := profile.NewProfileHandler(srv)
 	watchListHandler := watchlist.NewWatchListHandler(srv)
+
 	watchListGroup := router.Group("/watch-list")
 	profileGroup := router.Group("/profile")
+
 	profileGroup.Use(middleware.AccessTokenMiddleware(srv.Config))
 	{
 		profileGroup.PATCH("", profileHandler.UpdateUserProfile)
 		profileGroup.GET("", profileHandler.GetUserProfileByID)
 	}
+
 	watchListGroup.Use(middleware.AccessTokenMiddleware(srv.Config))
 	{
 		watchListGroup.GET("", watchListHandler.GetWatchList)
+		watchListGroup.POST("", watchListHandler.AddToList)
 	}
 }

@@ -55,8 +55,8 @@ RETURNING id, email, password, created_at, updated_at
 `
 
 type RegisterUserParams struct {
-	Email    string `binding:"required,email" json:"email"`
-	Password string `binding:"required" json:"password"`
+	Email    string `binding:"required,email" example:"mosh@mail.com" json:"email"`
+	Password string `binding:"required" example:"Hello" json:"password"`
 }
 
 func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (*User, error) {
