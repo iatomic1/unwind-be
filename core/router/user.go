@@ -25,5 +25,8 @@ func RegisterUserRoutes(srv *server.Server, router *gin.RouterGroup) {
 	{
 		watchListGroup.GET("", watchListHandler.GetWatchList)
 		watchListGroup.POST("", watchListHandler.AddToList)
+		watchListGroup.GET("/:id", watchListHandler.GetWatchListByMediaID)
+		watchListGroup.PATCH("/:id", watchListHandler.UpdateWatchListStatus)
+		watchListGroup.DELETE("/:id", watchListHandler.DeleteFromWatchList)
 	}
 }

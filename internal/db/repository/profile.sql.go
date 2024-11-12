@@ -59,7 +59,7 @@ RETURNING id, user_id, profile_pic, name, username, cover_pic, created_at, updat
 `
 
 type InsertProfileParams struct {
-	Username string    `binding:"required,min=8" json:"username"`
+	Username string    `binding:"required,min=8" example:"Slimmm Shaddy" json:"username"`
 	UserID   uuid.UUID `binding:"required,uuid" json:"userId"`
 }
 
@@ -92,7 +92,7 @@ RETURNING id, user_id, profile_pic, name, username, cover_pic, created_at, updat
 `
 
 type UpdateProfileParams struct {
-	Username   string    `binding:"required,min=8" json:"username"`
+	Username   string    `binding:"required,min=8" example:"Slimmm Shaddy" json:"username"`
 	Name       *string   `json:"name"`
 	CoverPic   *string   `json:"coverPic"`
 	ProfilePic *string   `json:"profilePic"`

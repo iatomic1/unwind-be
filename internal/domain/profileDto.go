@@ -52,3 +52,18 @@ func GetUserIDFromContext(c *gin.Context) (uuid.UUID, error) {
 
 	return parsedID, nil
 }
+
+func ParseIDFromParams(c *gin.Context, id string) (uuid.UUID, error) {
+	if id == "" {
+		server.SendBadRequest(c, errors.New("ID must be provided"))
+		return uuid.Nil, errors.New("User ID not found")
+	}
+
+	parsedID, err := uuid.Parse(id)
+	if err != nil {
+		server.SendInternalServerError(c, err, server.WithMessage("Failed to parse ID"))
+		return uuid.Nil, fmt.Errorf("parse UUID: %w", err)
+	}
+
+	return parsedID, nil
+}

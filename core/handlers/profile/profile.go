@@ -42,15 +42,13 @@ func (h *Handler) UpdateUserProfile(c *gin.Context) {
 		req repository.UpdateProfileParams
 	)
 
-	// Validate request body
 	if err := h.validateUpdateProfileRequest(c, &req); err != nil {
-		return // Error response already sent in validateRequest
+		return
 	}
 
-	// Get and validate profile ID from context
 	profileID, err := domain.GetProfileIDFromContext(c)
 	if err != nil {
-		return // Error response already sent in getProfileIDFromContext
+		return
 	}
 
 	// Start transaction
