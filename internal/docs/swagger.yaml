@@ -9,6 +9,15 @@ definitions:
       profileId:
         type: string
     type: object
+  github_com_adeyemialameen04_unwind-be_core_server.CreatedResponse:
+    properties:
+      data: {}
+      message:
+        type: string
+      status:
+        example: Created
+        type: string
+    type: object
   github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse:
     properties:
       errors: {}
@@ -56,15 +65,28 @@ definitions:
     type: object
   github_com_adeyemialameen04_unwind-be_internal_db_repository.AddToListParams:
     properties:
-      anilistId:
+      duration:
+        type: integer
+      episodes:
+        type: integer
+      mediaId:
         type: string
-      hianimeId:
+      poster:
         type: string
+      status:
+        $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Status'
+      title:
+        type: string
+      type:
+        $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.ValidTypes'
       userId:
         type: string
     required:
-    - anilistId
-    - hianimeId
+    - mediaId
+    - poster
+    - status
+    - title
+    - type
     type: object
   github_com_adeyemialameen04_unwind-be_internal_db_repository.Profile:
     properties:
@@ -83,6 +105,7 @@ definitions:
       userId:
         type: string
       username:
+        example: Slimmm Shaddy
         minLength: 8
         type: string
     required:
@@ -101,6 +124,20 @@ definitions:
     - email
     - password
     type: object
+  github_com_adeyemialameen04_unwind-be_internal_db_repository.Status:
+    enum:
+    - watching
+    - on-hold
+    - planning
+    - dropped
+    - completed
+    type: string
+    x-enum-varnames:
+    - StatusWatching
+    - StatusOnHold
+    - StatusPlanning
+    - StatusDropped
+    - StatusCompleted
   github_com_adeyemialameen04_unwind-be_internal_db_repository.UpdateProfileParams:
     properties:
       coverPic:
@@ -112,28 +149,63 @@ definitions:
       profilePic:
         type: string
       username:
+        example: Slimmm Shaddy
         minLength: 8
         type: string
     required:
     - username
     type: object
-  github_com_adeyemialameen04_unwind-be_internal_db_repository.WatchList:
+  github_com_adeyemialameen04_unwind-be_internal_db_repository.UpdateWatchListStatusParams:
     properties:
-      anilistId:
-        type: string
-      createdAt:
-        type: string
-      hianimeId:
-        type: string
       id:
         type: string
+      status:
+        $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Status'
+    required:
+    - status
+    type: object
+  github_com_adeyemialameen04_unwind-be_internal_db_repository.ValidTypes:
+    enum:
+    - anime
+    - movie
+    - kdrama
+    - manga
+    type: string
+    x-enum-varnames:
+    - ValidTypesAnime
+    - ValidTypesMovie
+    - ValidTypesKdrama
+    - ValidTypesManga
+  github_com_adeyemialameen04_unwind-be_internal_db_repository.WatchList:
+    properties:
+      createdAt:
+        type: string
+      duration:
+        type: integer
+      episodes:
+        type: integer
+      id:
+        type: string
+      mediaId:
+        type: string
+      poster:
+        type: string
+      status:
+        $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Status'
+      title:
+        type: string
+      type:
+        $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.ValidTypes'
       updatedAt:
         type: string
       userId:
         type: string
     required:
-    - anilistId
-    - hianimeId
+    - mediaId
+    - poster
+    - status
+    - title
+    - type
     type: object
   github_com_adeyemialameen04_unwind-be_internal_domain.AuthResponse:
     properties:
@@ -409,11 +481,11 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse'
+            - $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.CreatedResponse'
             - properties:
                 data:
                   $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.WatchList'
@@ -433,6 +505,130 @@ paths:
       security:
       - AccessTokenBearer: []
       summary: Adds an anime to a user watch list
+      tags:
+      - User
+  /user/watch-list/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes an item from a user watch list.
+      parameters:
+      - description: Watch list ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.WatchList'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse'
+        "404":
+          description: WatchList not found
+          schema:
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse'
+      security:
+      - AccessTokenBearer: []
+      summary: Delete Item from watchList.
+      tags:
+      - User
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a user watch list by it's media ID.
+      parameters:
+      - description: Media ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.WatchList'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse'
+        "404":
+          description: Watchlist not found
+          schema:
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse'
+      security:
+      - AccessTokenBearer: []
+      summary: Get WatchList using media id
+      tags:
+      - User
+    patch:
+      consumes:
+      - application/json
+      description: Updates the status of a user watch list.
+      parameters:
+      - description: Updated status
+        in: body
+        name: Anime
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.UpdateWatchListStatusParams'
+      - description: Watch list ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.WatchList'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse'
+        "404":
+          description: WatchList not found
+          schema:
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse'
+      security:
+      - AccessTokenBearer: []
+      summary: Update WatchList status
       tags:
       - User
 schemes:

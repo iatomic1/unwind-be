@@ -12,14 +12,17 @@ import (
 
 type Querier interface {
 	AddToList(ctx context.Context, arg AddToListParams) (*WatchList, error)
+	DeleteWatchList(ctx context.Context, id uuid.UUID) (*WatchList, error)
 	GetProfileById(ctx context.Context, id uuid.UUID) (*Profile, error)
 	GetProfileByUserId(ctx context.Context, userID uuid.UUID) (*Profile, error)
 	GetUserByEmail(ctx context.Context, email string) (*User, error)
 	GetUserById(ctx context.Context, id uuid.UUID) (*User, error)
 	GetUserWatchList(ctx context.Context, userID uuid.UUID) ([]*WatchList, error)
+	GetWatchListByMediaID(ctx context.Context, mediaID *string) (*WatchList, error)
 	InsertProfile(ctx context.Context, arg InsertProfileParams) (*Profile, error)
 	RegisterUser(ctx context.Context, arg RegisterUserParams) (*User, error)
 	UpdateProfile(ctx context.Context, arg UpdateProfileParams) (*Profile, error)
+	UpdateWatchListStatus(ctx context.Context, arg UpdateWatchListStatusParams) (*WatchList, error)
 }
 
 var _ Querier = (*Queries)(nil)

@@ -5,17 +5,108 @@
 package repository
 
 import (
+	"database/sql/driver"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+type Status string
+
+const (
+	StatusWatching  Status = "watching"
+	StatusOnHold    Status = "on-hold"
+	StatusPlanning  Status = "planning"
+	StatusDropped   Status = "dropped"
+	StatusCompleted Status = "completed"
+)
+
+func (e *Status) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = Status(s)
+	case string:
+		*e = Status(s)
+	default:
+		return fmt.Errorf("unsupported scan type for Status: %T", src)
+	}
+	return nil
+}
+
+type NullStatus struct {
+	Status Status `json:"status"`
+	Valid  bool   `json:"valid"` // Valid is true if Status is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.Status, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.Status.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.Status), nil
+}
+
+type ValidTypes string
+
+const (
+	ValidTypesAnime  ValidTypes = "anime"
+	ValidTypesMovie  ValidTypes = "movie"
+	ValidTypesKdrama ValidTypes = "kdrama"
+	ValidTypesManga  ValidTypes = "manga"
+)
+
+func (e *ValidTypes) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ValidTypes(s)
+	case string:
+		*e = ValidTypes(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ValidTypes: %T", src)
+	}
+	return nil
+}
+
+type NullValidTypes struct {
+	ValidTypes ValidTypes `json:"validTypes"`
+	Valid      bool       `json:"valid"` // Valid is true if ValidTypes is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullValidTypes) Scan(value interface{}) error {
+	if value == nil {
+		ns.ValidTypes, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ValidTypes.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullValidTypes) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ValidTypes), nil
+}
 
 type Profile struct {
 	ID         uuid.UUID `json:"id"`
 	UserID     uuid.UUID `binding:"required,uuid" json:"userId"`
 	ProfilePic *string   `json:"profilePic"`
 	Name       *string   `json:"name"`
-	Username   string    `binding:"required,min=8" json:"username"`
+	Username   string    `binding:"required,min=8" example:"Slimmm Shaddy" json:"username"`
 	CoverPic   *string   `json:"coverPic"`
 	CreatedAt  time.Time `json:"createdAt"`
 	UpdatedAt  time.Time `json:"updatedAt"`
@@ -30,10 +121,15 @@ type User struct {
 }
 
 type WatchList struct {
-	ID        uuid.UUID `json:"id"`
-	UserID    uuid.UUID `json:"userId"`
-	AnilistID *string   `binding:"required" json:"anilistId"`
-	HianimeID *string   `binding:"required" json:"hianimeId"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	ID        uuid.UUID  `json:"id"`
+	UserID    uuid.UUID  `json:"userId"`
+	Type      ValidTypes `binding:"required" json:"type"`
+	MediaID   *string    `binding:"required" json:"mediaId"`
+	Poster    string     `binding:"required" json:"poster"`
+	Title     string     `binding:"required" json:"title"`
+	Status    Status     `binding:"required" json:"status"`
+	Episodes  *int32     `json:"episodes"`
+	Duration  *int32     `json:"duration"`
+	CreatedAt time.Time  `json:"createdAt"`
+	UpdatedAt time.Time  `json:"updatedAt"`
 }

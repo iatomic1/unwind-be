@@ -413,12 +413,12 @@
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse"
+                                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.CreatedResponse"
                                 },
                                 {
                                     "type": "object",
@@ -451,6 +451,212 @@
                     }
                 }
             }
+        },
+        "/user/watch-list/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "AccessTokenBearer": []
+                    }
+                ],
+                "description": "Retrieves a user watch list by it's media ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get WatchList using media id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Media ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.WatchList"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Watchlist not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "AccessTokenBearer": []
+                    }
+                ],
+                "description": "Deletes an item from a user watch list.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Delete Item from watchList.",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Watch list ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.WatchList"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "WatchList not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "AccessTokenBearer": []
+                    }
+                ],
+                "description": "Updates the status of a user watch list.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update WatchList status",
+                "parameters": [
+                    {
+                        "description": "Updated status",
+                        "name": "Anime",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.UpdateWatchListStatusParams"
+                        }
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Watch list ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.WatchList"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.UnauthorizedResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "WatchList not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.NotFoundResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_core_server.InternalServerErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -465,6 +671,19 @@
                 },
                 "profileId": {
                     "type": "string"
+                }
+            }
+        },
+        "github_com_adeyemialameen04_unwind-be_core_server.CreatedResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "Created"
                 }
             }
         },
@@ -536,15 +755,33 @@
         "github_com_adeyemialameen04_unwind-be_internal_db_repository.AddToListParams": {
             "type": "object",
             "required": [
-                "anilistId",
-                "hianimeId"
+                "mediaId",
+                "poster",
+                "status",
+                "title",
+                "type"
             ],
             "properties": {
-                "anilistId": {
+                "duration": {
+                    "type": "integer"
+                },
+                "episodes": {
+                    "type": "integer"
+                },
+                "mediaId": {
                     "type": "string"
                 },
-                "hianimeId": {
+                "poster": {
                     "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Status"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.ValidTypes"
                 },
                 "userId": {
                     "type": "string"
@@ -581,7 +818,8 @@
                 },
                 "username": {
                     "type": "string",
-                    "minLength": 8
+                    "minLength": 8,
+                    "example": "Slimmm Shaddy"
                 }
             }
         },
@@ -601,6 +839,23 @@
                     "example": "Hello"
                 }
             }
+        },
+        "github_com_adeyemialameen04_unwind-be_internal_db_repository.Status": {
+            "type": "string",
+            "enum": [
+                "watching",
+                "on-hold",
+                "planning",
+                "dropped",
+                "completed"
+            ],
+            "x-enum-varnames": [
+                "StatusWatching",
+                "StatusOnHold",
+                "StatusPlanning",
+                "StatusDropped",
+                "StatusCompleted"
+            ]
         },
         "github_com_adeyemialameen04_unwind-be_internal_db_repository.UpdateProfileParams": {
             "type": "object",
@@ -622,28 +877,76 @@
                 },
                 "username": {
                     "type": "string",
-                    "minLength": 8
+                    "minLength": 8,
+                    "example": "Slimmm Shaddy"
                 }
             }
+        },
+        "github_com_adeyemialameen04_unwind-be_internal_db_repository.UpdateWatchListStatusParams": {
+            "type": "object",
+            "required": [
+                "status"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Status"
+                }
+            }
+        },
+        "github_com_adeyemialameen04_unwind-be_internal_db_repository.ValidTypes": {
+            "type": "string",
+            "enum": [
+                "anime",
+                "movie",
+                "kdrama",
+                "manga"
+            ],
+            "x-enum-varnames": [
+                "ValidTypesAnime",
+                "ValidTypesMovie",
+                "ValidTypesKdrama",
+                "ValidTypesManga"
+            ]
         },
         "github_com_adeyemialameen04_unwind-be_internal_db_repository.WatchList": {
             "type": "object",
             "required": [
-                "anilistId",
-                "hianimeId"
+                "mediaId",
+                "poster",
+                "status",
+                "title",
+                "type"
             ],
             "properties": {
-                "anilistId": {
-                    "type": "string"
-                },
                 "createdAt": {
                     "type": "string"
                 },
-                "hianimeId": {
-                    "type": "string"
+                "duration": {
+                    "type": "integer"
+                },
+                "episodes": {
+                    "type": "integer"
                 },
                 "id": {
                     "type": "string"
+                },
+                "mediaId": {
+                    "type": "string"
+                },
+                "poster": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Status"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.ValidTypes"
                 },
                 "updatedAt": {
                     "type": "string"

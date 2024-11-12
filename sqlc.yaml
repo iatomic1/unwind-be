@@ -24,9 +24,15 @@ sql:
         go_type:
           import: time
           type: Time
-      - column: watch_list.anilist_id
+      - column: watch_list.type
         go_struct_tag: binding:"required"
-      - column: watch_list.hianime_id
+      - column: watch_list.media_id
+        go_struct_tag: binding:"required"
+      - column: watch_list.poster
+        go_struct_tag: binding:"required"
+      - column: watch_list.title
+        go_struct_tag: binding:"required"
+      - column: watch_list.status
         go_struct_tag: binding:"required"
       - column: user.email
         go_struct_tag: binding:"required,email" example:"mosh@mail.com"
@@ -35,4 +41,4 @@ sql:
       - column: profile.user_id
         go_struct_tag: binding:"required,uuid"
       - column: profile.username
-        go_struct_tag: binding:"required,min=8"
+        go_struct_tag: binding:"required,min=8" example:"Slimmm Shaddy"
