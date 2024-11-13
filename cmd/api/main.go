@@ -19,6 +19,12 @@
 //	@name						Authorization
 //	@description				RefreshTokenBearer Authentication
 
+// @securityDefinitions.oauth2.accessCode Google OAuth2
+// @tokenUrl https://oauth2.googleapis.com/token
+// @authorizationUrl https://accounts.google.com/o/oauth2/auth
+// @scope.profile Grants access to user's basic profile info
+// @scope.email Grants access to user's email
+
 // @tag.name			Auth
 // @tag.description	Authentication endpoints
 package main
@@ -29,6 +35,7 @@ import (
 
 	"github.com/adeyemialameen04/unwind-be/core/router"
 	"github.com/adeyemialameen04/unwind-be/core/server"
+	"github.com/adeyemialameen04/unwind-be/internal/auth"
 	"github.com/adeyemialameen04/unwind-be/internal/config"
 	"github.com/adeyemialameen04/unwind-be/internal/projectpath"
 	"github.com/adeyemialameen04/unwind-be/internal/utils"
@@ -57,6 +64,7 @@ func main() {
 		log.Fatal(err)
 	}
 
+	auth.NewGoogleAuth(cfg)
 	router.SetupRouter(srv)
 	server.RunServer(srv)
 }

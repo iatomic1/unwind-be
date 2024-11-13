@@ -1010,6 +1010,16 @@
             "name": "Authorization",
             "in": "header"
         },
+        "Google OAuth2": {
+            "type": "oauth2",
+            "flow": "accessCode",
+            "authorizationUrl": "https://accounts.google.com/o/oauth2/auth",
+            "tokenUrl": "https://oauth2.googleapis.com/token",
+            "scopes": {
+                "email": "Grants access to user's email",
+                "profile": "Grants access to user's basic profile info"
+            }
+        },
         "RefreshTokenBearer": {
             "description": "RefreshTokenBearer Authentication",
             "type": "apiKey",

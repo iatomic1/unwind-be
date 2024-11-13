@@ -53,18 +53,39 @@ func (q *Queries) GetProfileByUserId(ctx context.Context, userID uuid.UUID) (*Pr
 
 const insertProfile = `-- name: InsertProfile :one
 INSERT INTO profile (
-  id, username, user_id
-) VALUES ( uuid_generate_v4(), $1, $2 )
+  id,
+  username,
+  user_id,
+  profile_pic,
+  name,
+  cover_pic
+) VALUES (
+  uuid_generate_v4(),
+  $1,               -- username (required)
+  $2,               -- user_id (required)
+  $3,               -- profile_pic (optional)
+  $4,               -- name (optional)
+  $5                -- cover_pic (optional)
+)
 RETURNING id, user_id, profile_pic, name, username, cover_pic, created_at, updated_at
 `
 
 type InsertProfileParams struct {
-	Username string    `binding:"required,min=8" example:"Slimmm Shaddy" json:"username"`
-	UserID   uuid.UUID `binding:"required,uuid" json:"userId"`
+	Username   string    `binding:"required,min=8" example:"Slimmm Shaddy" json:"username"`
+	UserID     uuid.UUID `binding:"required,uuid" json:"userId"`
+	ProfilePic *string   `json:"profilePic"`
+	Name       *string   `json:"name"`
+	CoverPic   *string   `json:"coverPic"`
 }
 
 func (q *Queries) InsertProfile(ctx context.Context, arg InsertProfileParams) (*Profile, error) {
-	row := q.db.QueryRow(ctx, insertProfile, arg.Username, arg.UserID)
+	row := q.db.QueryRow(ctx, insertProfile,
+		arg.Username,
+		arg.UserID,
+		arg.ProfilePic,
+		arg.Name,
+		arg.CoverPic,
+	)
 	var i Profile
 	err := row.Scan(
 		&i.ID,

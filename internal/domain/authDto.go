@@ -34,7 +34,7 @@ type RefreshTokenResponse struct {
 type EmailID struct {
 	Email     string `json:"email"`
 	ID        string `json:"id"`
-	ProfileId string `json:"profileId"`
+	ProfileID string `json:"profileId"`
 } // @name EmailID
 
 func ParseIDs(id string, profileId string) (uuid.UUID, uuid.UUID, error) {

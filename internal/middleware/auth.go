@@ -50,7 +50,7 @@ func AccessTokenMiddleware(cfg *config.Config) gin.HandlerFunc {
 			return
 		}
 		c.Set("userId", data.ID)
-		c.Set("profileId", data.ProfileId)
+		c.Set("profileId", data.ProfileID)
 		c.Set("email", data.Email)
 	}
 }
@@ -93,7 +93,7 @@ func RefreshTokenMiddleware(cfg *config.Config) gin.HandlerFunc {
 		}
 		fmt.Println(data, "middleware")
 		c.Set("userId", data.ID)
-		c.Set("profileId", data.ProfileId)
+		c.Set("profileId", data.ProfileID)
 		c.Set("email", data.Email)
 	}
 }

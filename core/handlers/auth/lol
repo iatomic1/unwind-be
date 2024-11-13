@@ -1,0 +1,52 @@
+func (h *Handler) CompleteUserAuth(c *gin.Context) {
+	ctx := context.Background()
+	tx, err := h.srv.DB.Begin(ctx)
+	if err != nil {
+		server.SendInternalServerError(c, err)
+		return
+	}
+	defer tx.Rollback(ctx)
+
+	repo := repository.New(tx)
+	user, err := h.handleUserCreation(ctx, repo, gothUser)
+	if err != nil {
+		server.SendInternalServerError(c, err)
+		return
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		server.SendInternalServerError(c, err)
+		return
+	}
+
+	tokens, err := utils.GenerateTokenPair(utils.EmailID{
+		Email:     user.Email,
+		ID:        user.ID,
+		ProfileID: user.ProfileID,
+	}, h.srv.Config)
+	if err != nil {
+		server.SendInternalServerError(c, err)
+		return
+	}
+
+	response := domain.AuthResponse{
+		TokenPair: utils.TokenPair{
+			AccessToken:  tokens.AccessToken,
+			RefreshToken: tokens.RefreshToken,
+		},
+		User: domain.EmailID{
+			Email:     user.Email,
+			ID:        user.ID,
+			ProfileID: user.ProfileID,
+		},
+	}
+
+	// You can either redirect or send JSON response based on your frontend requirements
+	if c.Query("redirect") == "true" {
+		frontendURL := h.srv.Config.FrontendURL
+		c.Redirect(http.StatusFound, fmt.Sprintf("%s/auth/callback?token=%s", frontendURL, tokens.AccessToken))
+		return
+	}
+
+	server.SendSuccess(c, response)
+}

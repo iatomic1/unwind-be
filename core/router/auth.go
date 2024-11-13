@@ -12,6 +12,8 @@ func RegisterAuthRoutes(srv *server.Server, router *gin.RouterGroup) {
 	authGroup := router
 	authGroup.POST("/login", authHandler.LoginUser)
 	authGroup.POST("/signup", authHandler.RegisterUser)
+	authGroup.GET("/:provider/callback", authHandler.OAuthCallback)
+	authGroup.GET("/:provider", authHandler.OauthBegin)
 
 	authGroup.Use(middleware.RefreshTokenMiddleware(srv.Config))
 	{

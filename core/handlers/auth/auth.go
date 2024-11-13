@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"regexp"
+	"strings"
 
 	"github.com/adeyemialameen04/unwind-be/core/server"
 	"github.com/adeyemialameen04/unwind-be/internal/db/repository"
@@ -12,7 +15,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golodash/galidator"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/markbates/goth"
+	"github.com/markbates/goth/gothic"
 )
 
 type Handler struct {
@@ -74,7 +80,7 @@ func (h *Handler) LoginUser(c *gin.Context) {
 	tokens, err := utils.GenerateTokenPair(utils.EmailID{
 		Email:     user.Email,
 		ID:        user.ID.String(),
-		ProfileId: profile.ID.String(),
+		ProfileID: profile.ID.String(),
 	}, h.srv.Config)
 	if err != nil {
 		server.SendInternalServerError(c, err)
@@ -88,7 +94,7 @@ func (h *Handler) LoginUser(c *gin.Context) {
 		User: domain.EmailID{
 			Email:     user.Email,
 			ID:        user.ID.String(),
-			ProfileId: profile.ID.String(),
+			ProfileID: profile.ID.String(),
 		},
 	}
 
@@ -177,7 +183,7 @@ func (h *Handler) RegisterUser(c *gin.Context) {
 	tokens, err := utils.GenerateTokenPair(utils.EmailID{
 		Email:     user.Email,
 		ID:        user.ID.String(),
-		ProfileId: profile.ID.String(),
+		ProfileID: profile.ID.String(),
 	}, h.srv.Config)
 	response := domain.AuthResponse{
 		TokenPair: utils.TokenPair{
@@ -187,24 +193,137 @@ func (h *Handler) RegisterUser(c *gin.Context) {
 		User: domain.EmailID{
 			Email:     user.Email,
 			ID:        user.ID.String(),
-			ProfileId: profile.ID.String(),
+			ProfileID: profile.ID.String(),
 		},
 	}
 
 	server.SendCreated(c, response, server.WithMessage(domain.UserCreated))
 }
 
-//	@Summary		Refresh Token
-//	@Description	Refreshes token to get new token pair
-//	@Security		RefreshTokenBearer
-//	@Tags			Auth
-//	@Accept			json
-//	@Produce		json
-//	@Success		200	{object}	server.SuccessResponse{data=utils.TokenPair}	"TokenPair"
-//	@Failure		401	{object}	server.UnauthorizedResponse						"Unauthorized"
-//	@Failure		404	{object}	server.NotFoundResponse							"Profile not found"
-//	@Failure		500	{object}	server.InternalServerErrorResponse				"Internal server error"
-//	@Router			/auth/refresh [get]
+// handleUserCreation manages user creation or retrieval logic
+func (h *Handler) handleUserCreation(ctx context.Context, repo *repository.Queries, gothUser goth.User) (*utils.EmailID, error) {
+	existingUser, err := repo.GetUserByEmail(ctx, gothUser.Email)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return nil, err
+	}
+
+	if existingUser != nil {
+
+		parsedUUID, err := uuid.Parse(existingUser.ID.String())
+		if err != nil {
+			log.Println("Error parsing uuid")
+			return nil, err
+		}
+		existingProfile, err := repo.GetProfileByUserId(ctx, parsedUUID)
+		if err != nil {
+			if err == pgx.ErrNoRows {
+				log.Println("Error retrieving usern profile")
+				return nil, err
+			}
+		}
+
+		return &utils.EmailID{
+			Email:     existingUser.Email,
+			ID:        existingUser.ID.String(),
+			ProfileID: existingProfile.ID.String(),
+		}, nil
+	}
+
+	// Create new user
+	userParams := repository.RegisterUserParams{
+		Email:    gothUser.Email,
+		Password: uuid.New().String(),
+	}
+
+	user, err := repo.RegisterUser(ctx, userParams)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == domain.UniqueViolation {
+			return nil, fmt.Errorf("email already exists: %w", err)
+		}
+		return nil, err
+	}
+
+	// Create user profile
+	username := generateUsername(gothUser.Name, gothUser.Email)
+	profile, err := repo.InsertProfile(ctx, repository.InsertProfileParams{
+		Username:   username,
+		UserID:     user.ID,
+		Name:       &gothUser.Name,
+		ProfilePic: &gothUser.AvatarURL,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &utils.EmailID{
+		Email:     user.Email,
+		ID:        user.ID.String(),
+		ProfileID: profile.ID.String(),
+	}, nil
+}
+
+func (h *Handler) OAuthCallback(c *gin.Context) {
+	provider := c.Param("provider")
+	if !isValidProvider(provider) {
+		server.SendBadRequest(c, fmt.Errorf("invalid provider: %s", provider))
+		return
+	}
+
+	req := c.Request.WithContext(context.WithValue(c.Request.Context(), "provider", provider))
+	c.Request = req
+
+	gothUser, err := gothic.CompleteUserAuth(c.Writer, c.Request)
+	if err != nil {
+		server.SendInternalServerError(c, err)
+		return
+	}
+	fmt.Println(gothUser)
+	c.SetCookie("test", "LFG", 3600, "/", "", false, true)
+}
+
+func (h *Handler) OauthBegin(c *gin.Context) {
+	provider := c.Param("provider")
+	req := c.Request.WithContext(context.WithValue(c.Request.Context(), "provider", provider))
+	c.Request = req
+
+	gothic.BeginAuthHandler(c.Writer, c.Request)
+}
+
+func isValidProvider(provider string) bool {
+	validProviders := map[string]bool{
+		"google":   true,
+		"github":   true,
+		"facebook": true,
+		// Add more providers as needed
+	}
+	return validProviders[provider]
+}
+
+func generateUsername(name, email string) string {
+	if name == "" {
+		return strings.Split(email, "@")[0]
+	}
+	// Remove spaces and special characters, convert to lowercase
+	username := strings.ToLower(strings.Join(strings.Fields(name), ""))
+	username = regexp.MustCompile(`[^a-zA-Z0-9]+`).ReplaceAllString(username, "")
+
+	// Append random string to ensure uniqueness
+	randomStr := uuid.New().String()[:6]
+	return fmt.Sprintf("%s_%s", username, randomStr)
+}
+
+// @Summary		Refresh Token
+// @Description	Refreshes token to get new token pair
+// @Security		RefreshTokenBearer
+// @Tags			Auth
+// @Accept			json
+// @Produce		json
+// @Success		200	{object}	server.SuccessResponse{data=utils.TokenPair}	"TokenPair"
+// @Failure		401	{object}	server.UnauthorizedResponse						"Unauthorized"
+// @Failure		404	{object}	server.NotFoundResponse							"Profile not found"
+// @Failure		500	{object}	server.InternalServerErrorResponse				"Internal server error"
+// @Router			/auth/refresh [get]
 func (h *Handler) RefreshToken(c *gin.Context) {
 	ctx := context.Background()
 
@@ -250,7 +369,7 @@ func (h *Handler) RefreshToken(c *gin.Context) {
 	tokens, err := utils.GenerateTokenPair(utils.EmailID{
 		ID:        parsedUserId.String(),
 		Email:     email.(string),
-		ProfileId: parsedProfileId.String(),
+		ProfileID: parsedProfileId.String(),
 	}, h.srv.Config)
 	if err != nil {
 		server.SendInternalServerError(c, err, server.WithMessage(domain.ErrGeneratingTokens))

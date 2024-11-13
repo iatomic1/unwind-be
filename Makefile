@@ -32,16 +32,26 @@ docs:
 create:
 	@goose create $(n) sql -dir $(MIGRATION_DIR)
 
-restart-db:
+stop-container:
 	@echo "Stopping existing container..."
 	docker stop $(DB_CONTAINER) || true
+
+
+remove-container:
 	@echo "Removing container..."
 	docker rm $(DB_CONTAINER) || true
+
+start-container:
 	@echo "Starting new container..."
 	docker run --name $(DB_CONTAINER) \
 		-e POSTGRES_PASSWORD=$(DB_PASSWORD) \
 		-p $(DB_PORT):5432 \
 		-d postgres
+
+restart-db:
+	$(MAKE) stop-container
+	$(MAKE) remove-container
+	$(MAKE) start-container
 	@echo "Waiting for PostgreSQL to start..."
 	@sleep 3
 	@echo "Enabling UUID extension..."

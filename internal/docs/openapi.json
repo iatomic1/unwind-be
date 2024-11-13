@@ -773,6 +773,19 @@
                 "type": "apiKey",
                 "name": "Authorization",
                 "in": "header"
+            },
+            "Google_OAuth2": {
+                "type": "oauth2",
+                "flows": {
+                    "authorizationCode": {
+                        "authorizationUrl": "https://accounts.google.com/o/oauth2/auth",
+                        "tokenUrl": "https://oauth2.googleapis.com/token",
+                        "scopes": {
+                            "email": "Grants access to user's email",
+                            "profile": "Grants access to user's basic profile info"
+                        }
+                    }
+                }
             }
         },
         "schemas": {
