@@ -640,6 +640,14 @@ securityDefinitions:
     in: header
     name: Authorization
     type: apiKey
+  Google OAuth2:
+    authorizationUrl: https://accounts.google.com/o/oauth2/auth
+    flow: accessCode
+    scopes:
+      email: Grants access to user's email
+      profile: Grants access to user's basic profile info
+    tokenUrl: https://oauth2.googleapis.com/token
+    type: oauth2
   RefreshTokenBearer:
     description: RefreshTokenBearer Authentication
     in: header

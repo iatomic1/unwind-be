@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Status string
@@ -113,11 +114,12 @@ type Profile struct {
 }
 
 type User struct {
-	ID        uuid.UUID `json:"id"`
-	Email     string    `binding:"required,email" example:"mosh@mail.com" json:"email"`
-	Password  string    `binding:"required" example:"Hello" json:"password"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	ID         uuid.UUID          `json:"id"`
+	Email      string             `binding:"required,email" example:"mosh@mail.com" json:"email"`
+	Password   string             `binding:"required" example:"Hello" json:"password"`
+	VerifiedAt pgtype.Timestamptz `json:"verifiedAt"`
+	CreatedAt  time.Time          `json:"createdAt"`
+	UpdatedAt  time.Time          `json:"updatedAt"`
 }
 
 type WatchList struct {

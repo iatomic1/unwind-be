@@ -1,8 +1,21 @@
 -- name: InsertProfile :one
 INSERT INTO profile (
-  id, username, user_id
-) VALUES ( uuid_generate_v4(), $1, $2 )
+  id,
+  username,
+  user_id,
+  profile_pic,
+  name,
+  cover_pic
+) VALUES (
+  uuid_generate_v4(),
+  $1,               -- username (required)
+  $2,               -- user_id (required)
+  $3,               -- profile_pic (optional)
+  $4,               -- name (optional)
+  $5                -- cover_pic (optional)
+)
 RETURNING *;
+
 
 
 -- name: UpdateProfile :one

@@ -13,7 +13,7 @@ import (
 type EmailID struct {
 	Email     string `json:"email"`
 	ID        string `json:"id"`
-	ProfileId string `json:"profileId"`
+	ProfileID string `json:"profileId"`
 }
 
 var (
@@ -40,7 +40,7 @@ func CreateJWT(data EmailID, refresh bool, cfg *config.Config) (string, error) {
 		"data": EmailID{
 			ID:        data.ID,
 			Email:     data.Email,
-			ProfileId: data.ProfileId,
+			ProfileID: data.ProfileID,
 		},
 		"jti":     uuid.New(),
 		"expires": expiration.Unix(),
@@ -162,7 +162,7 @@ func ExtractDataFromToken(claims jwt.MapClaims) (EmailID, error) {
 
 	return EmailID{
 		ID:        userId,
-		ProfileId: profileId,
+		ProfileID: profileId,
 		Email:     email,
 	}, nil
 }
