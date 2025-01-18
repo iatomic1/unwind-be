@@ -13,20 +13,21 @@ import (
 
 const addToList = `-- name: AddToList :one
 INSERT INTO watch_list (
-  id, user_id, type, media_id, poster, title, status, episodes, duration  
-) VALUES ( uuid_generate_v4(), $1, $2, $3, $4, $5, $6, $7, $8 )
-RETURNING id, user_id, type, media_id, poster, title, status, episodes, duration, created_at, updated_at
+  id, user_id, type, media_id, poster, title, status, episodes, duration, media_type 
+) VALUES ( uuid_generate_v4(), $1, $2, $3, $4, $5, $6, $7, $8, $9)
+RETURNING id, user_id, type, media_type, media_id, poster, title, status, rated, episodes, duration, created_at, updated_at
 `
 
 type AddToListParams struct {
-	UserID   uuid.UUID  `json:"userId"`
-	Type     ValidTypes `binding:"required" json:"type"`
-	MediaID  *string    `binding:"required" json:"mediaId"`
-	Poster   string     `binding:"required" json:"poster"`
-	Title    string     `binding:"required" json:"title"`
-	Status   Status     `binding:"required" json:"status"`
-	Episodes *int32     `json:"episodes"`
-	Duration *int32     `json:"duration"`
+	UserID    uuid.UUID  `json:"userId"`
+	Type      ValidTypes `binding:"required" json:"type"`
+	MediaID   *string    `binding:"required" json:"mediaId"`
+	Poster    string     `binding:"required" json:"poster"`
+	Title     string     `binding:"required" json:"title"`
+	Status    Status     `binding:"required" json:"status"`
+	Episodes  *int32     `json:"episodes"`
+	Duration  *int32     `json:"duration"`
+	MediaType MediaType  `binding:"required" json:"mediaType"`
 }
 
 func (q *Queries) AddToList(ctx context.Context, arg AddToListParams) (*WatchList, error) {
@@ -39,16 +40,19 @@ func (q *Queries) AddToList(ctx context.Context, arg AddToListParams) (*WatchLis
 		arg.Status,
 		arg.Episodes,
 		arg.Duration,
+		arg.MediaType,
 	)
 	var i WatchList
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
 		&i.Type,
+		&i.MediaType,
 		&i.MediaID,
 		&i.Poster,
 		&i.Title,
 		&i.Status,
+		&i.Rated,
 		&i.Episodes,
 		&i.Duration,
 		&i.CreatedAt,
@@ -60,7 +64,7 @@ func (q *Queries) AddToList(ctx context.Context, arg AddToListParams) (*WatchLis
 const deleteWatchList = `-- name: DeleteWatchList :one
 DELETE FROM watch_list
   WHERE id = $1
-RETURNING id, user_id, type, media_id, poster, title, status, episodes, duration, created_at, updated_at
+RETURNING id, user_id, type, media_type, media_id, poster, title, status, rated, episodes, duration, created_at, updated_at
 `
 
 func (q *Queries) DeleteWatchList(ctx context.Context, id uuid.UUID) (*WatchList, error) {
@@ -70,10 +74,12 @@ func (q *Queries) DeleteWatchList(ctx context.Context, id uuid.UUID) (*WatchList
 		&i.ID,
 		&i.UserID,
 		&i.Type,
+		&i.MediaType,
 		&i.MediaID,
 		&i.Poster,
 		&i.Title,
 		&i.Status,
+		&i.Rated,
 		&i.Episodes,
 		&i.Duration,
 		&i.CreatedAt,
@@ -83,7 +89,7 @@ func (q *Queries) DeleteWatchList(ctx context.Context, id uuid.UUID) (*WatchList
 }
 
 const getUserWatchList = `-- name: GetUserWatchList :many
-SELECT id, user_id, type, media_id, poster, title, status, episodes, duration, created_at, updated_at FROM watch_list
+SELECT id, user_id, type, media_type, media_id, poster, title, status, rated, episodes, duration, created_at, updated_at FROM watch_list
 WHERE user_id = $1
 `
 
@@ -100,10 +106,12 @@ func (q *Queries) GetUserWatchList(ctx context.Context, userID uuid.UUID) ([]*Wa
 			&i.ID,
 			&i.UserID,
 			&i.Type,
+			&i.MediaType,
 			&i.MediaID,
 			&i.Poster,
 			&i.Title,
 			&i.Status,
+			&i.Rated,
 			&i.Episodes,
 			&i.Duration,
 			&i.CreatedAt,
@@ -120,21 +128,28 @@ func (q *Queries) GetUserWatchList(ctx context.Context, userID uuid.UUID) ([]*Wa
 }
 
 const getWatchListByMediaID = `-- name: GetWatchListByMediaID :one
-SELECT id, user_id, type, media_id, poster, title, status, episodes, duration, created_at, updated_at FROM watch_list
-WHERE media_id = $1
+SELECT id, user_id, type, media_type, media_id, poster, title, status, rated, episodes, duration, created_at, updated_at FROM watch_list
+WHERE media_id = $1 AND user_id = $2
 `
 
-func (q *Queries) GetWatchListByMediaID(ctx context.Context, mediaID *string) (*WatchList, error) {
-	row := q.db.QueryRow(ctx, getWatchListByMediaID, mediaID)
+type GetWatchListByMediaIDParams struct {
+	MediaID *string   `binding:"required" json:"mediaId"`
+	UserID  uuid.UUID `json:"userId"`
+}
+
+func (q *Queries) GetWatchListByMediaID(ctx context.Context, arg GetWatchListByMediaIDParams) (*WatchList, error) {
+	row := q.db.QueryRow(ctx, getWatchListByMediaID, arg.MediaID, arg.UserID)
 	var i WatchList
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
 		&i.Type,
+		&i.MediaType,
 		&i.MediaID,
 		&i.Poster,
 		&i.Title,
 		&i.Status,
+		&i.Rated,
 		&i.Episodes,
 		&i.Duration,
 		&i.CreatedAt,
@@ -149,7 +164,7 @@ SET
     status = COALESCE($1, status),
     updated_at = now()
 WHERE id = $2
-RETURNING id, user_id, type, media_id, poster, title, status, episodes, duration, created_at, updated_at
+RETURNING id, user_id, type, media_type, media_id, poster, title, status, rated, episodes, duration, created_at, updated_at
 `
 
 type UpdateWatchListStatusParams struct {
@@ -164,10 +179,12 @@ func (q *Queries) UpdateWatchListStatus(ctx context.Context, arg UpdateWatchList
 		&i.ID,
 		&i.UserID,
 		&i.Type,
+		&i.MediaType,
 		&i.MediaID,
 		&i.Poster,
 		&i.Title,
 		&i.Status,
+		&i.Rated,
 		&i.Episodes,
 		&i.Duration,
 		&i.CreatedAt,

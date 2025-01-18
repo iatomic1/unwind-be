@@ -326,9 +326,9 @@ func (h *Handler) OAuthCallback(c *gin.Context) {
 	}
 
 	frontendURL := h.srv.Config.FrontendURL
-	c.SetCookie("accessToken", response.AccessToken, 3600, "/", "localhost", true, true)
-	c.SetCookie("refreshToken", response.RefreshToken, 3600, "/", "localhost", true, true)
-	c.SetCookie("user", string(userJSON), 3600, "/", "localhost", true, true)
+	c.SetCookie("accessToken", response.AccessToken, 900, "/", "localhost", true, true)
+	c.SetCookie("refreshToken", response.RefreshToken, 604800, "/", "localhost", true, true)
+	c.SetCookie("user", string(userJSON), 604800, "/", "localhost", true, true)
 	c.Redirect(http.StatusFound, frontendURL+"/anime")
 }
 
