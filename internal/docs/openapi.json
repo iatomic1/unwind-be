@@ -885,6 +885,7 @@
                 "type": "object",
                 "required": [
                     "mediaId",
+                    "mediaType",
                     "poster",
                     "status",
                     "title",
@@ -899,6 +900,9 @@
                     },
                     "mediaId": {
                         "type": "string"
+                    },
+                    "mediaType": {
+                        "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_internal_db_repository.MediaType"
                     },
                     "poster": {
                         "type": "string"
@@ -916,6 +920,17 @@
                         "type": "string"
                     }
                 }
+            },
+            "github_com_adeyemialameen04_unwind-be_internal_db_repository.MediaType": {
+                "type": "string",
+                "enum": [
+                    "tv",
+                    "movie"
+                ],
+                "x-enum-varnames": [
+                    "MediaTypeTv",
+                    "MediaTypeMovie"
+                ]
             },
             "github_com_adeyemialameen04_unwind-be_internal_db_repository.Profile": {
                 "type": "object",
@@ -1044,6 +1059,7 @@
                 "type": "object",
                 "required": [
                     "mediaId",
+                    "mediaType",
                     "poster",
                     "status",
                     "title",
@@ -1065,8 +1081,14 @@
                     "mediaId": {
                         "type": "string"
                     },
+                    "mediaType": {
+                        "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_internal_db_repository.MediaType"
+                    },
                     "poster": {
                         "type": "string"
+                    },
+                    "rated": {
+                        "type": "integer"
                     },
                     "status": {
                         "$ref": "#/components/schemas/github_com_adeyemialameen04_unwind-be_internal_db_repository.Status"

@@ -758,6 +758,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "mediaId",
+                "mediaType",
                 "poster",
                 "status",
                 "title",
@@ -772,6 +773,9 @@ const docTemplate = `{
                 },
                 "mediaId": {
                     "type": "string"
+                },
+                "mediaType": {
+                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.MediaType"
                 },
                 "poster": {
                     "type": "string"
@@ -789,6 +793,17 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "github_com_adeyemialameen04_unwind-be_internal_db_repository.MediaType": {
+            "type": "string",
+            "enum": [
+                "tv",
+                "movie"
+            ],
+            "x-enum-varnames": [
+                "MediaTypeTv",
+                "MediaTypeMovie"
+            ]
         },
         "github_com_adeyemialameen04_unwind-be_internal_db_repository.Profile": {
             "type": "object",
@@ -917,6 +932,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "mediaId",
+                "mediaType",
                 "poster",
                 "status",
                 "title",
@@ -938,8 +954,14 @@ const docTemplate = `{
                 "mediaId": {
                     "type": "string"
                 },
+                "mediaType": {
+                    "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.MediaType"
+                },
                 "poster": {
                     "type": "string"
+                },
+                "rated": {
+                    "type": "integer"
                 },
                 "status": {
                     "$ref": "#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Status"

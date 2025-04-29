@@ -26,6 +26,8 @@ sql:
           type: Time
       - column: watch_list.type
         go_struct_tag: binding:"required"
+      - column: watch_list.media_type
+        go_struct_tag: binding:"required"
       - column: watch_list.media_id
         go_struct_tag: binding:"required"
       - column: watch_list.poster

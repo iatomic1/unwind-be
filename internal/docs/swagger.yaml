@@ -71,6 +71,8 @@ definitions:
         type: integer
       mediaId:
         type: string
+      mediaType:
+        $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.MediaType'
       poster:
         type: string
       status:
@@ -83,11 +85,20 @@ definitions:
         type: string
     required:
     - mediaId
+    - mediaType
     - poster
     - status
     - title
     - type
     type: object
+  github_com_adeyemialameen04_unwind-be_internal_db_repository.MediaType:
+    enum:
+    - tv
+    - movie
+    type: string
+    x-enum-varnames:
+    - MediaTypeTv
+    - MediaTypeMovie
   github_com_adeyemialameen04_unwind-be_internal_db_repository.Profile:
     properties:
       coverPic:
@@ -188,8 +199,12 @@ definitions:
         type: string
       mediaId:
         type: string
+      mediaType:
+        $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.MediaType'
       poster:
         type: string
+      rated:
+        type: integer
       status:
         $ref: '#/definitions/github_com_adeyemialameen04_unwind-be_internal_db_repository.Status'
       title:
@@ -202,6 +217,7 @@ definitions:
         type: string
     required:
     - mediaId
+    - mediaType
     - poster
     - status
     - title

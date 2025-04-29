@@ -147,63 +147,64 @@ func SendError(c *gin.Context, statusCode int, errs []error, opts ...ResponseOpt
 		}
 	}
 
+	// Create a base Response
+	resp := Response{
+		Status:  http.StatusText(statusCode),
+		Message: getDefaultMessage(statusCode),
+		Errors:  outputErrors,
+	}
+
+	// Apply options to modify the response
+	for _, opt := range opts {
+		opt(&resp)
+	}
+
+	// Choose the appropriate response type based on the status code
 	switch statusCode {
 	case http.StatusBadRequest:
-		resp := BadRequestResponse{
-			Status:  http.StatusText(statusCode),
-			Message: getDefaultMessage(statusCode),
-			Errors:  outputErrors,
-		}
-		c.JSON(statusCode, resp)
+		c.JSON(statusCode, BadRequestResponse{
+			Status:  resp.Status,
+			Message: resp.Message,
+			Errors:  resp.Errors,
+		})
 	case http.StatusUnauthorized:
-		resp := UnauthorizedResponse{
-			Status:  http.StatusText(statusCode),
-			Message: getDefaultMessage(statusCode),
-			Errors:  outputErrors,
-		}
-		c.JSON(statusCode, resp)
+		c.JSON(statusCode, UnauthorizedResponse{
+			Status:  resp.Status,
+			Message: resp.Message,
+			Errors:  resp.Errors,
+		})
 	case http.StatusForbidden:
-		resp := ForbiddenResponse{
-			Status:  http.StatusText(statusCode),
-			Message: getDefaultMessage(statusCode),
-			Errors:  outputErrors,
-		}
-		c.JSON(statusCode, resp)
+		c.JSON(statusCode, ForbiddenResponse{
+			Status:  resp.Status,
+			Message: resp.Message,
+			Errors:  resp.Errors,
+		})
 	case http.StatusNotFound:
-		resp := NotFoundResponse{
-			Status:  http.StatusText(statusCode),
-			Message: getDefaultMessage(statusCode),
-			Errors:  outputErrors,
-		}
-		c.JSON(statusCode, resp)
+		c.JSON(statusCode, NotFoundResponse{
+			Status:  resp.Status,
+			Message: resp.Message,
+			Errors:  resp.Errors,
+		})
 	case http.StatusMethodNotAllowed:
-		resp := MethodNotAllowedResponse{
-			Status:  http.StatusText(statusCode),
-			Message: getDefaultMessage(statusCode),
-			Errors:  outputErrors,
-		}
-		c.JSON(statusCode, resp)
+		c.JSON(statusCode, MethodNotAllowedResponse{
+			Status:  resp.Status,
+			Message: resp.Message,
+			Errors:  resp.Errors,
+		})
 	case http.StatusConflict:
-		resp := ConflictResponse{
-			Status:  http.StatusText(statusCode),
-			Message: getDefaultMessage(statusCode),
-			Errors:  outputErrors,
-		}
-		c.JSON(statusCode, resp)
+		c.JSON(statusCode, ConflictResponse{
+			Status:  resp.Status,
+			Message: resp.Message,
+			Errors:  resp.Errors,
+		})
 	case http.StatusInternalServerError:
-		resp := InternalServerErrorResponse{
-			Status:  http.StatusText(statusCode),
-			Message: getDefaultMessage(statusCode),
-			Errors:  outputErrors,
-		}
-		c.JSON(statusCode, resp)
+		c.JSON(statusCode, InternalServerErrorResponse{
+			Status:  resp.Status,
+			Message: resp.Message,
+			Errors:  resp.Errors,
+		})
 	default:
 		// Fallback to generic Response for unknown status codes
-		resp := Response{
-			Status:  http.StatusText(statusCode),
-			Message: getDefaultMessage(statusCode),
-			Errors:  outputErrors,
-		}
 		c.JSON(statusCode, resp)
 	}
 }

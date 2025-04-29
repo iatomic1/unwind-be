@@ -3,6 +3,7 @@ package watchlist
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/adeyemialameen04/unwind-be/core/server"
 	"github.com/adeyemialameen04/unwind-be/internal/db/repository"
@@ -265,7 +266,10 @@ func (h *Handler) GetWatchListByMediaID(c *gin.Context) {
 	mediaId := c.Param("id")
 
 	repo := repository.New(tx)
-	watchListItem, err := repo.GetWatchListByMediaID(ctx, &mediaId)
+	watchListItem, err := repo.GetWatchListByMediaID(ctx, repository.GetWatchListByMediaIDParams{
+		MediaID: &mediaId,
+		UserID:  userId,
+	})
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			server.SendNotFound(c, errors.New("Not found"))
@@ -280,10 +284,9 @@ func (h *Handler) GetWatchListByMediaID(c *gin.Context) {
 		return
 	}
 
-	if watchListItem.UserID != userId {
-		server.SendUnauthorized(c, errors.New("Unauthorized"))
-		return
-	}
+	fmt.Println(watchListItem)
+	fmt.Println(watchListItem.UserID.String(), "The one gotten")
+	fmt.Println(userId.String(), "The one in context")
 
 	server.SendSuccess(c, watchListItem, server.WithMessage("WatchList retrieved successfully"))
 }

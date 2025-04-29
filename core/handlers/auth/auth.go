@@ -2,9 +2,11 @@ package auth
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"regexp"
 	"strings"
 
@@ -200,66 +202,62 @@ func (h *Handler) RegisterUser(c *gin.Context) {
 	server.SendCreated(c, response, server.WithMessage(domain.UserCreated))
 }
 
-// handleUserCreation manages user creation or retrieval logic
 func (h *Handler) handleUserCreation(ctx context.Context, repo *repository.Queries, gothUser goth.User) (*utils.EmailID, error) {
 	existingUser, err := repo.GetUserByEmail(ctx, gothUser.Email)
-	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
-		return nil, err
-	}
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			userParams := repository.RegisterUserParams{
+				Email:    gothUser.Email,
+				Password: uuid.New().String(),
+			}
 
-	if existingUser != nil {
-
-		parsedUUID, err := uuid.Parse(existingUser.ID.String())
-		if err != nil {
-			log.Println("Error parsing uuid")
-			return nil, err
-		}
-		existingProfile, err := repo.GetProfileByUserId(ctx, parsedUUID)
-		if err != nil {
-			if err == pgx.ErrNoRows {
-				log.Println("Error retrieving usern profile")
+			user, err := repo.RegisterUser(ctx, userParams)
+			if err != nil {
+				var pgErr *pgconn.PgError
+				if errors.As(err, &pgErr) && pgErr.Code == domain.UniqueViolation {
+					return nil, fmt.Errorf("email already exists: %w", err)
+				}
 				return nil, err
 			}
+
+			username := generateUsername(gothUser.Name, gothUser.Email)
+			profile, err := repo.InsertProfile(ctx, repository.InsertProfileParams{
+				Username:   username,
+				UserID:     user.ID,
+				Name:       &gothUser.Name,
+				ProfilePic: &gothUser.AvatarURL,
+			})
+			if err != nil {
+				return nil, err
+			}
+
+			return &utils.EmailID{
+				Email:     user.Email,
+				ID:        user.ID.String(),
+				ProfileID: profile.ID.String(),
+			}, nil
 		}
 
-		return &utils.EmailID{
-			Email:     existingUser.Email,
-			ID:        existingUser.ID.String(),
-			ProfileID: existingProfile.ID.String(),
-		}, nil
-	}
-
-	// Create new user
-	userParams := repository.RegisterUserParams{
-		Email:    gothUser.Email,
-		Password: uuid.New().String(),
-	}
-
-	user, err := repo.RegisterUser(ctx, userParams)
-	if err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) && pgErr.Code == domain.UniqueViolation {
-			return nil, fmt.Errorf("email already exists: %w", err)
-		}
 		return nil, err
 	}
 
-	// Create user profile
-	username := generateUsername(gothUser.Name, gothUser.Email)
-	profile, err := repo.InsertProfile(ctx, repository.InsertProfileParams{
-		Username:   username,
-		UserID:     user.ID,
-		Name:       &gothUser.Name,
-		ProfilePic: &gothUser.AvatarURL,
-	})
+	parsedUUID, err := uuid.Parse(existingUser.ID.String())
 	if err != nil {
+		log.Println("Error parsing uuid")
 		return nil, err
+	}
+	existingProfile, err := repo.GetProfileByUserId(ctx, parsedUUID)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			log.Println("Error retrieving user profile")
+			return nil, err
+		}
 	}
 
 	return &utils.EmailID{
-		Email:     user.Email,
-		ID:        user.ID.String(),
-		ProfileID: profile.ID.String(),
+		Email:     existingUser.Email,
+		ID:        existingUser.ID.String(),
+		ProfileID: existingProfile.ID.String(),
 	}, nil
 }
 
@@ -278,8 +276,60 @@ func (h *Handler) OAuthCallback(c *gin.Context) {
 		server.SendInternalServerError(c, err)
 		return
 	}
-	fmt.Println(gothUser)
-	c.SetCookie("test", "LFG", 3600, "/", "", false, true)
+	// Start transaction
+	ctx := context.Background()
+	tx, err := h.srv.DB.Begin(ctx)
+	if err != nil {
+		server.SendInternalServerError(c, err)
+		return
+	}
+	defer tx.Rollback(ctx)
+
+	repo := repository.New(tx)
+	user, err := h.handleUserCreation(ctx, repo, gothUser)
+	fmt.Println(user)
+	if err != nil {
+		server.SendInternalServerError(c, err)
+		return
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		server.SendInternalServerError(c, err)
+		return
+	}
+
+	tokens, err := utils.GenerateTokenPair(utils.EmailID{
+		Email:     user.Email,
+		ID:        user.ID,
+		ProfileID: user.ProfileID,
+	}, h.srv.Config)
+	if err != nil {
+		server.SendInternalServerError(c, err)
+		return
+	}
+
+	response := domain.AuthResponse{
+		TokenPair: utils.TokenPair{
+			AccessToken:  tokens.AccessToken,
+			RefreshToken: tokens.RefreshToken,
+		},
+		User: domain.EmailID{
+			Email:     user.Email,
+			ID:        user.ID,
+			ProfileID: user.ProfileID,
+		},
+	}
+	userJSON, err := json.Marshal(response.User)
+	if err != nil {
+		fmt.Println("Failed to serialize user data")
+		return
+	}
+
+	frontendURL := h.srv.Config.FrontendURL
+	c.SetCookie("accessToken", response.AccessToken, 900, "/", "localhost", true, true)
+	c.SetCookie("refreshToken", response.RefreshToken, 604800, "/", "localhost", true, true)
+	c.SetCookie("user", string(userJSON), 604800, "/", "localhost", true, true)
+	c.Redirect(http.StatusFound, frontendURL+"/anime")
 }
 
 func (h *Handler) OauthBegin(c *gin.Context) {

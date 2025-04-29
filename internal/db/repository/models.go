@@ -13,6 +13,48 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type MediaType string
+
+const (
+	MediaTypeTv    MediaType = "tv"
+	MediaTypeMovie MediaType = "movie"
+)
+
+func (e *MediaType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = MediaType(s)
+	case string:
+		*e = MediaType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for MediaType: %T", src)
+	}
+	return nil
+}
+
+type NullMediaType struct {
+	MediaType MediaType `json:"mediaType"`
+	Valid     bool      `json:"valid"` // Valid is true if MediaType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullMediaType) Scan(value interface{}) error {
+	if value == nil {
+		ns.MediaType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.MediaType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullMediaType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.MediaType), nil
+}
+
 type Status string
 
 const (
@@ -126,10 +168,12 @@ type WatchList struct {
 	ID        uuid.UUID  `json:"id"`
 	UserID    uuid.UUID  `json:"userId"`
 	Type      ValidTypes `binding:"required" json:"type"`
+	MediaType MediaType  `binding:"required" json:"mediaType"`
 	MediaID   *string    `binding:"required" json:"mediaId"`
 	Poster    string     `binding:"required" json:"poster"`
 	Title     string     `binding:"required" json:"title"`
 	Status    Status     `binding:"required" json:"status"`
+	Rated     *int32     `json:"rated"`
 	Episodes  *int32     `json:"episodes"`
 	Duration  *int32     `json:"duration"`
 	CreatedAt time.Time  `json:"createdAt"`
